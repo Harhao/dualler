@@ -17,3 +17,6 @@ rootProject.name = "dualler"
 
 include(":platform-kmp")
 project(":platform-kmp").projectDir = File("packages/platform-kmp")
+
+include(":core-kmp")
+project(":core-kmp").projectDir = File("packages/core-kmp")
