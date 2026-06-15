@@ -51,7 +51,11 @@ export async function bundle(options: BundleOptions): Promise<BundleResult> {
 
   // Build pages
   for (const page of pages) {
-    const pageName = page.replace(/\.vue$/, '').replace(/^src\//, '');
+    // Normalize path: remove .vue, extract relative path from src/
+    const normalized = page.replace(/\\/g, '/');  // normalize slashes
+    const match = normalized.match(/src\/(.+)\.vue$/);
+    const pageName = match ? match[1] : normalized.replace(/\.vue$/, '').replace(/^.*\//, '');
+
     const jsContent = `// Page: ${pageName}\n__dualler_page__('${pageName}', { setup() { return {}; } });`;
     const htmlContent = `<!DOCTYPE html><html><body><div id="app"></div></body></html>`;
     const cssContent = `/* Page: ${pageName} */\nbody { margin: 0; }`;
@@ -59,6 +63,10 @@ export async function bundle(options: BundleOptions): Promise<BundleResult> {
     const jsPath = `${pageName}.js`;
     const htmlPath = `${pageName}.html`;
     const cssPath = `${pageName}.css`;
+
+    // Ensure subdirectory exists
+    const jsDir = dirname(join(outputDir, jsPath));
+    mkdirSync(jsDir, { recursive: true });
 
     writeFileSync(join(outputDir, jsPath), jsContent);
     writeFileSync(join(outputDir, htmlPath), htmlContent);
