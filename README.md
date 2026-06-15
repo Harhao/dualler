@@ -1,3 +1,4 @@
+<h1 align="center">Dualler</h1>
 <p align="center">
   <img src="https://img.shields.io/badge/version-1.0.0-blue" alt="version">
   <img src="https://img.shields.io/badge/kotlin-1.9.22-purple" alt="kotlin">
@@ -5,8 +6,6 @@
   <img src="https://img.shields.io/badge/license-MIT-yellow" alt="license">
   <img src="https://img.shields.io/badge/platform-Android%20%7C%20iOS%20%7C%20Web-brightgreen" alt="platform">
 </p>
-
-<h1 align="center">Dualler</h1>
 
 <p align="center">
   <strong>高性能小程序引擎 SDK</strong><br>
