@@ -1,0 +1,24 @@
+{
+  "name": "@dualler/compiler",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "bin": {
+    "dualler-compiler": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@vue/compiler-sfc": "^3.4.0",
+    "@babel/parser": "^7.24.0",
+    "@babel/traverse": "^7.24.0",
+    "@babel/generator": "^7.24.0",
+    "postcss": "^8.4.0",
+    "cssnano": "^6.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "@types/node": "^20.11.0"
+  }
+}

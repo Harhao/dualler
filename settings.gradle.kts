@@ -29,3 +29,6 @@ project(":ios").projectDir = File("packages/ios")
 
 include(":web")
 project(":web").projectDir = File("packages/web")
+
+include(":gradle-plugin")
+project(":gradle-plugin").projectDir = File("packages/gradle-plugin")
