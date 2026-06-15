@@ -1,10 +1,13 @@
 package com.dualler.android.webview
 
 import android.content.Context
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
+import android.webkit.WebMessage
+import android.webkit.WebMessagePort
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -13,6 +16,10 @@ import com.dualler.platform.WebViewProvider
 
 /**
  * Android WebView implementation of [WebViewProvider].
+ *
+ * Supports WebMessagePort for efficient bidirectional communication with the WebView.
+ * The bridge can call [connectMessagePort] to establish a dedicated message channel,
+ * falling back to [addJavascriptInterface] if message ports are unavailable.
  */
 class AndroidWebViewProvider(private val context: Context) : WebViewProvider {
     private val webView = WebView(context).apply {
@@ -32,6 +39,10 @@ class AndroidWebViewProvider(private val context: Context) : WebViewProvider {
     }
 
     private val mainHandler = Handler(Looper.getMainLooper())
+
+    // WebMessagePort channel for bidirectional communication
+    private var nativePort: WebMessagePort? = null
+    private var messageListener: ((String) -> Unit)? = null
 
     override fun loadUrl(url: String) {
         mainHandler.post { webView.loadUrl(url) }
@@ -89,6 +100,8 @@ class AndroidWebViewProvider(private val context: Context) : WebViewProvider {
 
     override fun destroy() {
         mainHandler.post {
+            nativePort?.close()
+            nativePort = null
             webView.stopLoading()
             webView.destroy()
         }
@@ -98,6 +111,60 @@ class AndroidWebViewProvider(private val context: Context) : WebViewProvider {
      * Returns the underlying Android [WebView] for embedding in a view hierarchy.
      */
     fun getWebView(): WebView = webView
+
+    /**
+     * Set up a WebMessagePort channel for bidirectional communication.
+     * Creates a two-port channel: one port stays native, the other is sent to the WebView.
+     * Incoming messages from the WebView are forwarded to [listener].
+     *
+     * This provides a more efficient and secure alternative to addJavascriptInterface.
+     */
+    fun connectMessagePort(listener: (String) -> Unit) {
+        this.messageListener = listener
+        mainHandler.post {
+            val channel = webView.createWebMessageChannel()
+
+            // Port 0 stays on the native side
+            nativePort = channel[0]
+            channel[0].setWebMessageCallback(object : WebMessagePort.WebMessageCallback() {
+                override fun onMessage(port: WebMessagePort, message: WebMessage) {
+                    val data = message.data ?: return
+                    listener(data)
+                }
+            })
+
+            // Port 1 is transferred to the WebView
+            webView.postWebMessage(
+                WebMessage("", arrayOf(channel[1])),
+                Uri.parse("https://dualler.local")
+            )
+        }
+    }
+
+    /**
+     * Send a message to the WebView via the WebMessagePort channel.
+     * If the port is not connected, falls back to evaluateJavascript.
+     *
+     * @param message The message string to send
+     */
+    fun postMessage(message: String) {
+        val port = nativePort
+        if (port != null) {
+            mainHandler.post {
+                port.postMessage(WebMessage(message))
+            }
+        } else {
+            // Fallback: inject script to invoke the global message handler
+            evaluateJavascript(
+                "typeof window.__duallerOnMessage__ === 'function' && window.__duallerOnMessage__('${message.replace("'", "\\'")}')"
+            )
+        }
+    }
+
+    /**
+     * Check if WebMessagePort is connected and available.
+     */
+    fun isMessagePortConnected(): Boolean = nativePort != null
 
     private fun wrapHtml(html: String): String {
         return """
@@ -114,6 +181,20 @@ class AndroidWebViewProvider(private val context: Context) : WebViewProvider {
             <body>
                 $html
                 <script>
+                    // WebMessagePort setup: listen for the port transfer
+                    window.addEventListener('message', function(event) {
+                        if (event.ports && event.ports.length > 0) {
+                            window.__duallerPort__ = event.ports[0];
+                            window.__duallerPort__.onmessage = function(msgEvent) {
+                                var data = msgEvent.data;
+                                if (typeof window.__duallerOnMessage__ === 'function') {
+                                    window.__duallerOnMessage__(data);
+                                }
+                            };
+                        }
+                    });
+
+                    // Render API for data binding
                     window.__dualler_render__ = {
                         patch: function(pageId, data) {
                             for (var key in data) {
@@ -122,6 +203,17 @@ class AndroidWebViewProvider(private val context: Context) : WebViewProvider {
                             }
                         }
                     };
+
+                    // Post message helper: use WebMessagePort if available, fall back to JS interface
+                    window.__duallerPostMessage__ = function(message) {
+                        if (window.__duallerPort__) {
+                            window.__duallerPort__.postMessage(message);
+                        } else if (typeof dualler !== 'undefined') {
+                            dualler.postMessage(message);
+                        }
+                    };
+
+                    // Signal ready
                     if (typeof dualler !== 'undefined') {
                         dualler.postMessage(JSON.stringify({ type: 'ready' }));
                     }

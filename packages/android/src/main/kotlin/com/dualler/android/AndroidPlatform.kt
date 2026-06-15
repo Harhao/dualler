@@ -17,7 +17,7 @@ class AndroidPlatform(private val context: Context) : Platform {
 
     override fun createWebView(): WebViewProvider = AndroidWebViewProvider(context)
 
-    override fun createBridge(): PlatformBridge = AndroidPlatformBridge()
+    override fun createBridge(): PlatformBridge = AndroidPlatformBridge(context)
 
     override val network: NetworkProvider = AndroidNetworkProvider(context)
     override val storage: StorageProvider = AndroidStorageProvider(context)
