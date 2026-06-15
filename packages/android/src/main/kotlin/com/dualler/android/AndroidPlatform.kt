@@ -1,6 +1,7 @@
 package com.dualler.android
 
 import android.content.Context
+import com.dualler.android.engine.AndroidJSEngine
 import com.dualler.platform.JSEngine
 import com.dualler.platform.Platform
 import com.dualler.platform.PlatformBridge
@@ -10,9 +11,7 @@ import com.dualler.platform.provider.*
 class AndroidPlatform(private val context: Context) : Platform {
     override val name = "android"
 
-    override fun createJSEngine(): JSEngine {
-        throw NotImplementedError("QuickJS integration pending")
-    }
+    override fun createJSEngine(): JSEngine = AndroidJSEngine()
 
     override fun createWebView(): WebViewProvider {
         throw NotImplementedError("WebView integration pending")
