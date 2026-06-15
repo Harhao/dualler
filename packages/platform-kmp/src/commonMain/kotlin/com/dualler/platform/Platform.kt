@@ -1,10 +1,9 @@
 package com.dualler.platform
 
-// Temporary stubs - will be replaced in later tasks
-interface NetworkProvider
-interface StorageProvider
-interface FileProvider
-interface DeviceProvider
+import com.dualler.platform.provider.DeviceProvider
+import com.dualler.platform.provider.FileProvider
+import com.dualler.platform.provider.NetworkProvider
+import com.dualler.platform.provider.StorageProvider
 
 /**
  * Platform abstraction interface

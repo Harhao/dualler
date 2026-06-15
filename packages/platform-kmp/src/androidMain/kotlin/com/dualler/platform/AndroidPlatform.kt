@@ -1,5 +1,10 @@
 package com.dualler.platform
 
+import com.dualler.platform.provider.DeviceProvider
+import com.dualler.platform.provider.FileProvider
+import com.dualler.platform.provider.NetworkProvider
+import com.dualler.platform.provider.StorageProvider
+
 /**
  * Android platform stub
  * Full implementation will be added in later tasks
