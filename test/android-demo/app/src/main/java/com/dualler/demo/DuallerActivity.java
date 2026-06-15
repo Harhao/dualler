@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.File;
+import java.io.FileInputStream;
 
 /**
  * Dualler 小程序 Activity
@@ -28,12 +29,18 @@ public class DuallerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         appId = getIntent().getStringExtra("appId");
+        if (appId == null) {
+            finish();
+            return;
+        }
 
         // 创建 WebView
         webView = new WebView(this);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setAllowFileAccess(true);
+        webView.getSettings().setAllowFileAccessFromFileURLs(true);
+        webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
 
         webView.setWebViewClient(new WebViewClient());
         webView.setWebChromeClient(new WebChromeClient());
@@ -62,14 +69,14 @@ public class DuallerActivity extends AppCompatActivity {
                 "dualler/packages/" + appId);
 
         if (!packageDir.exists()) {
-            Toast.makeText(this, "小程序包不存在", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "小程序包不存在: " + packageDir.getAbsolutePath(), Toast.LENGTH_LONG).show();
             finish();
             return;
         }
 
         File indexHtml = new File(packageDir, "pages/index/index.html");
         if (!indexHtml.exists()) {
-            Toast.makeText(this, "首页文件不存在", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "首页文件不存在: " + indexHtml.getAbsolutePath(), Toast.LENGTH_LONG).show();
             finish();
             return;
         }
@@ -92,14 +99,15 @@ public class DuallerActivity extends AppCompatActivity {
                 "<html>\n" +
                 "<head>\n" +
                 "  <meta charset=\"UTF-8\">\n" +
-                "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
+                "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\">\n" +
                 "  <style>\n" +
                 "    * { margin: 0; padding: 0; box-sizing: border-box; }\n" +
-                "    body { font-family: sans-serif; font-size: 14px; color: #333; background: #f5f5f5; }\n" +
+                "    body { font-family: -apple-system, sans-serif; font-size: 14px; color: #333; background: #f5f5f5; }\n" +
                 "    view { display: block; }\n" +
                 "    text { display: inline; }\n" +
-                "    button { padding: 8px 16px; border: 1px solid #ddd; border-radius: 4px; background: #fff; cursor: pointer; }\n" +
-                "    input, textarea { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }\n" +
+                "    button { padding: 8px 16px; border: 1px solid #ddd; border-radius: 4px; background: #fff; cursor: pointer; font-size: 14px; }\n" +
+                "    button:active { background: #f0f0f0; }\n" +
+                "    input, textarea { padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; width: 100%%; }\n" +
                 "    " + css + "\n" +
                 "  </style>\n" +
                 "</head>\n" +
@@ -122,7 +130,7 @@ public class DuallerActivity extends AppCompatActivity {
 
     private String readFile(File file) {
         try {
-            java.io.FileInputStream fis = new java.io.FileInputStream(file);
+            FileInputStream fis = new FileInputStream(file);
             byte[] data = new byte[(int) file.length()];
             fis.read(data);
             fis.close();
@@ -150,13 +158,13 @@ public class DuallerActivity extends AppCompatActivity {
     private void handleApiCall(String api, org.json.JSONObject params) {
         switch (api) {
             case "showToast":
-                String title = params.optString("title", "");
+                String title = params != null ? params.optString("title", "") : "";
                 Toast.makeText(this, title, Toast.LENGTH_SHORT).show();
                 break;
             case "showModal":
                 new android.app.AlertDialog.Builder(this)
-                        .setTitle(params.optString("title", "提示"))
-                        .setMessage(params.optString("content", ""))
+                        .setTitle(params != null ? params.optString("title", "提示") : "提示")
+                        .setMessage(params != null ? params.optString("content", "") : "")
                         .setPositiveButton("确定", null)
                         .show();
                 break;

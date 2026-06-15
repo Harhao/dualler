@@ -40,19 +40,18 @@
         android:layout_marginTop="48dp">
 
         <!-- 启动小程序 -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_launch"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="🚀 启动小程序"
-            android:textSize="16sp"
-            android:backgroundTint="#1a73e8" />
+            android:textSize="16sp" />
 
         <!-- 说明文字 -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="点击上方按钮启动 Dualler 示例小程序\n小程序包路径：/sdcard/dualler/packages/"
+            android:text="点击上方按钮启动 Dualler 示例小程序\n\n小程序包路径：\n/sdcard/dualler/packages/com.example.dualler-demo/"
             android:textSize="12sp"
             android:textColor="#999999"
             android:gravity="center"

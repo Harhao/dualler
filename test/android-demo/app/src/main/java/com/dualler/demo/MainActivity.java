@@ -1,22 +1,27 @@
 package com.dualler.demo;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.io.File;
 
 /**
- * Android 演示首页
+ * Dualler Demo 主页面
  *
- * 点击按钮启动 Dualler 小程序
+ * 点击按钮启动小程序
  */
 public class MainActivity extends AppCompatActivity {
 
+    private static final int REQUEST_PERMISSION = 100;
     private static final String APP_ID = "com.example.dualler-demo";
 
     @Override
@@ -26,11 +31,28 @@ public class MainActivity extends AppCompatActivity {
 
         // 启动小程序按钮
         Button btnLaunch = findViewById(R.id.btn_launch);
-        btnLaunch.setOnClickListener(v -> launchMiniProgram());
+        btnLaunch.setOnClickListener(v -> {
+            if (checkPermissions()) {
+                launchMiniProgram();
+            }
+        });
+    }
 
-        // 打开 Web 预览按钮
-        Button btnWeb = findViewById(R.id.btn_web);
-        btnWeb.setOnClickListener(v -> openWebPreview());
+    /**
+     * 检查权限
+     */
+    private boolean checkPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    },
+                    REQUEST_PERMISSION);
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -42,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
                 "dualler/packages/" + APP_ID);
 
         if (!packageDir.exists()) {
-            Toast.makeText(this, "小程序包不存在，请先编译 example", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "小程序包不存在\n路径: " + packageDir.getAbsolutePath(), Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -52,10 +74,15 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    /**
-     * 打开 Web 预览
-     */
-    private void openWebPreview() {
-        Toast.makeText(this, "请在浏览器中打开 test/web-preview/index.html", Toast.LENGTH_LONG).show();
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                launchMiniProgram();
+            } else {
+                Toast.makeText(this, "需要存储权限才能运行小程序", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }
