@@ -1,7 +1,6 @@
 package com.dualler.platform
 
 // Temporary stubs - will be replaced in later tasks
-interface WebViewProvider
 interface PlatformBridge
 interface NetworkProvider
 interface StorageProvider
