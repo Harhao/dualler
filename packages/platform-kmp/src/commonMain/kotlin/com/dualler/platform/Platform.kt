@@ -1,7 +1,6 @@
 package com.dualler.platform
 
 // Temporary stubs - will be replaced in later tasks
-interface PlatformBridge
 interface NetworkProvider
 interface StorageProvider
 interface FileProvider
