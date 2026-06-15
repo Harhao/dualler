@@ -24,11 +24,5 @@ project(":core-kmp").projectDir = File("packages/core-kmp")
 include(":android")
 project(":android").projectDir = File("packages/android")
 
-include(":ios")
-project(":ios").projectDir = File("packages/ios")
-
-include(":web")
-project(":web").projectDir = File("packages/web")
-
 include(":gradle-plugin")
 project(":gradle-plugin").projectDir = File("packages/gradle-plugin")
