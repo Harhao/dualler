@@ -1,0 +1,68 @@
+{
+  "appId": "com.example.dualler-demo",
+  "appName": "Dualler 示例",
+  "version": "1.0.0",
+  "pages": [
+    "pages/index/index",
+    "pages/detail/detail",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#1a73e8",
+    "navigationBarTitleText": "Dualler 示例",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f5f5",
+    "enablePullDownRefresh": false
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#1a73e8",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "assets/icons/home.png",
+        "selectedIconPath": "assets/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "assets/icons/user.png",
+        "selectedIconPath": "assets/icons/user-active.png"
+      }
+    ]
+  },
+  "subpackages": [
+    {
+      "root": "packageShop",
+      "name": "shop",
+      "pages": [
+        "pages/list/list",
+        "pages/detail/detail"
+      ]
+    }
+  ],
+  "preloadRule": {
+    "pages/index/index": {
+      "network": "all",
+      "packages": ["shop"]
+    }
+  },
+  "domainWhitelist": {
+    "request": [
+      "https://api.example.com",
+      "https://*.cdn.example.com"
+    ],
+    "websocket": [
+      "wss://ws.example.com"
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于获取您的位置信息"
+    }
+  },
+  "workers": "workers"
+}

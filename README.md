@@ -135,7 +135,7 @@ QuickJS (逻辑层)                   WebView (渲染层)
 
 ```bash
 # 克隆项目
-git clone https://github.com/your-org/dualler.git
+git clone https://github.com/harhao/dualler.git
 cd dualler
 
 # 构建所有 KMP 模块（Android + 共享层）
