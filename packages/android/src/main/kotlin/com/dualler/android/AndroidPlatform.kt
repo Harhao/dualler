@@ -1,7 +1,9 @@
 package com.dualler.android
 
 import android.content.Context
+import com.dualler.android.bridge.AndroidPlatformBridge
 import com.dualler.android.engine.AndroidJSEngine
+import com.dualler.android.webview.AndroidWebViewProvider
 import com.dualler.platform.JSEngine
 import com.dualler.platform.Platform
 import com.dualler.platform.PlatformBridge
@@ -13,13 +15,9 @@ class AndroidPlatform(private val context: Context) : Platform {
 
     override fun createJSEngine(): JSEngine = AndroidJSEngine()
 
-    override fun createWebView(): WebViewProvider {
-        throw NotImplementedError("WebView integration pending")
-    }
+    override fun createWebView(): WebViewProvider = AndroidWebViewProvider(context)
 
-    override fun createBridge(): PlatformBridge {
-        throw NotImplementedError("Bridge integration pending")
-    }
+    override fun createBridge(): PlatformBridge = AndroidPlatformBridge()
 
     override val network: NetworkProvider = AndroidNetworkProvider(context)
     override val storage: StorageProvider = AndroidStorageProvider(context)
