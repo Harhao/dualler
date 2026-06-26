@@ -156,6 +156,12 @@ export class ShadowDOMWebView implements WebViewProvider {
     // WebView 配置在 Web 平台中由浏览器控制
   }
 
+  setVisible(visible: boolean): void {
+    if (this.container) {
+      this.container.style.display = visible ? '' : 'none';
+    }
+  }
+
   destroy(): void {
     if (this.shadowRoot) {
       this.shadowRoot.innerHTML = '';

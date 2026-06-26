@@ -90,6 +90,12 @@ public class WKWebViewProvider: NSObject, WebViewProvider, WKScriptMessageHandle
         }
     }
 
+    public func setVisible(_ visible: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            self?.webView?.isHidden = !visible
+        }
+    }
+
     public func destroy() {
         webView?.stopLoading()
         webView?.configuration.userContentController.removeAllUserScripts()

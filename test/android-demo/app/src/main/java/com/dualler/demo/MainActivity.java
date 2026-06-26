@@ -12,12 +12,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.dualler.android.DuallerActivity;
+
 import java.io.File;
 
 /**
  * Dualler Demo 主页面
- *
- * 点击按钮启动小程序
  */
 public class MainActivity extends AppCompatActivity {
 
@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 启动小程序按钮
         Button btnLaunch = findViewById(R.id.btn_launch);
         btnLaunch.setOnClickListener(v -> {
             if (checkPermissions()) {
@@ -38,9 +37,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * 检查权限
-     */
     private boolean checkPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -55,11 +51,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    /**
-     * 启动小程序
-     */
     private void launchMiniProgram() {
-        // 检查小程序包是否存在
         File packageDir = new File(Environment.getExternalStorageDirectory(),
                 "dualler/packages/" + APP_ID);
 
@@ -68,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // 启动 DuallerActivity
+        // 使用 SDK 的 DuallerActivity
         Intent intent = new Intent(this, DuallerActivity.class);
         intent.putExtra("appId", APP_ID);
         startActivity(intent);
@@ -81,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 launchMiniProgram();
             } else {
-                Toast.makeText(this, "需要存储权限才能运行小程序", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "需要存储权限", Toast.LENGTH_SHORT).show();
             }
         }
     }

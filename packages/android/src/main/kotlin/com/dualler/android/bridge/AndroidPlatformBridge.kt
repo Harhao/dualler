@@ -3,8 +3,10 @@ package com.dualler.android.bridge
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.webkit.WebMessage
 import android.webkit.WebMessagePort
 import com.dualler.android.api.*
+import com.dualler.android.webview.AndroidWebViewProvider
 import com.dualler.core.Router
 import com.dualler.platform.APIHandler
 import com.dualler.platform.JSEngine
@@ -20,23 +22,37 @@ import kotlinx.serialization.encodeToString
 /**
  * Android implementation of [PlatformBridge].
  *
- * Coordinates communication between the logic layer (JSEngine), render layer (WebView),
- * and native layer (API handlers).
+ * Communication priority:
+ *   1. WebMessagePort (preferred, Android 6.0+) — dedicated channel, no JNI overhead
+ *   2. JavascriptInterface (fallback) — postMessage + evaluateJavascript
  *
- * Uses WebMessagePort for efficient WebView communication and JSEngine for logic-layer callbacks.
+ * WebMessagePort provides:
+ *   - Non-blocking bidirectional communication
+ *   - No main thread blocking from JNI callbacks
+ *   - Direct message passing without script injection
  */
 class AndroidPlatformBridge(private val context: Context) : PlatformBridge {
     private val apiHandlers = mutableMapOf<String, APIHandler>()
     private val json = Json { ignoreUnknownKeys = true }
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    // Message ports for WebView communication
-    private var webViewPort: WebMessagePort? = null
+    // Communication channels
+    private var nativePort: WebMessagePort? = null
     private var jsEngine: JSEngine? = null
-    private var webView: WebViewProvider? = null
+    private var webViewProvider: AndroidWebViewProvider? = null
+
+    /** Whether WebMessagePort is connected */
+    val isWebMessagePortConnected: Boolean get() = nativePort != null
 
     init {
-        // Register system APIs
+        // Register default system APIs
+        registerDefaultAPIs()
+    }
+
+    /**
+     * Register default system APIs
+     */
+    private fun registerDefaultAPIs() {
         registerAPI("request", NetworkAPIHandler(context))
         registerAPI("getStorage", StorageGetAPIHandler(context))
         registerAPI("setStorage", StorageSetAPIHandler(context))
@@ -60,35 +76,18 @@ class AndroidPlatformBridge(private val context: Context) : PlatformBridge {
     }
 
     /**
-     * Connect a WebView provider and set up WebMessagePort for bidirectional communication.
-     * Should be called after the WebView is loaded and ready.
+     * Connect to a WebView and establish WebMessagePort channel.
+     *
+     * This should be called after the WebView is loaded and ready.
+     * If WebMessagePort is not available (Android < 6.0), falls back to JavascriptInterface.
      */
-    fun connectWebView(webViewProvider: WebViewProvider) {
-        this.webView = webViewProvider
+    fun connectWebView(provider: WebViewProvider) {
+        if (provider !is AndroidWebViewProvider) return
+        this.webViewProvider = provider
 
-        if (webViewProvider is com.dualler.android.webview.AndroidWebViewProvider) {
-            val androidWebView = webViewProvider.getWebView()
-            mainHandler.post {
-                val channel = androidWebView.createWebMessageChannel()
-                val portPair = channel
-
-                // Port 0 stays in native, port 1 is sent to the WebView
-                this.webViewPort = portPair[0]
-
-                // Set up the native-side port to receive messages from WebView
-                portPair[0].setWebMessageCallback(object : WebMessagePort.WebMessageCallback() {
-                    override fun onMessage(port: WebMessagePort, message: android.webkit.WebMessage) {
-                        val data = message.data ?: return
-                        handleWebViewMessage(data)
-                    }
-                })
-
-                // Send port 1 to the WebView so it can use it for communication
-                androidWebView.postWebMessage(
-                    android.webkit.WebMessage("", arrayOf(portPair[1])),
-                    android.net.Uri.parse("https://dualler.local")
-                )
-            }
+        // Try to establish WebMessagePort connection
+        provider.connectMessagePort { message ->
+            handleWebViewMessage(message)
         }
     }
 
@@ -98,33 +97,20 @@ class AndroidPlatformBridge(private val context: Context) : PlatformBridge {
     fun connectJSEngine(engine: JSEngine) {
         this.jsEngine = engine
 
-        // Register the native callback receiver in the JS engine.
-        // This callback exists as a JS-callable entry point; actual callback routing
-        // is handled by invokeCallback which calls into JS directly.
-        engine.registerCallback("__duallerNativeCallback__") { _ -> JSValue.Null }
+        // Register native callback receiver
+        engine.registerCallback("__duallerNativeCallback__") { args ->
+            // This is the entry point for JS -> Native calls
+            JSValue.Null
+        }
     }
 
-    override fun setData(pageId: String, data: Map<String, Any>) {
-        val message = json.encodeToString(kotlinx.serialization.json.JsonObject(
-            data.mapValues { (_, v) ->
-                kotlinx.serialization.json.JsonPrimitive(v.toString())
-            }
-        ))
+    // MARK: - PlatformBridge Implementation
 
-        // Send to WebView render layer via WebMessagePort
-        val port = webViewPort
-        if (port != null) {
-            mainHandler.post {
-                port.postMessage(android.webkit.WebMessage(
-                    """{"type":"setData","pageId":"$pageId","data":$message}"""
-                ))
-            }
-        } else {
-            // Fallback: send via evaluateJavascript
-            (webView as? com.dualler.android.webview.AndroidWebViewProvider)?.evaluateJavascript(
-                "window.__dualler_render__ && window.__dualler_render__.patch('$pageId', $message)"
-            )
-        }
+    override fun setData(pageId: String, data: Map<String, Any>) {
+        val dataJson = serializeData(data)
+        val message = """{"type":"setData","pageId":"$pageId","data":$dataJson}"""
+
+        sendMessageToWebView(message)
     }
 
     override fun dispatchEvent(pageId: String, event: DOMEvent) {
@@ -154,33 +140,25 @@ class AndroidPlatformBridge(private val context: Context) : PlatformBridge {
     }
 
     override fun invokeCallback(callbackId: String, result: APIResult) {
-        val engine = jsEngine
-        if (engine != null) {
-            val resultJson = when (result) {
-                is APIResult.Success -> {
-                    val dataJson = when (val d = result.data) {
-                        is Map<*, *> -> json.encodeToString(
-                            kotlinx.serialization.json.JsonObject(
-                                d.entries.associate { (k, v) ->
-                                    k.toString() to kotlinx.serialization.json.JsonPrimitive(v.toString())
-                                }
-                            )
-                        )
-                        else -> "\"${result.data}\""
-                    }
-                    """{"success":true,"data":$dataJson}"""
-                }
-                is APIResult.Fail -> """{"success":false,"errCode":${result.errCode},"errMsg":"${result.errMsg}"}"""
-            }
+        val engine = jsEngine ?: return
 
-            try {
-                engine.evaluateScript(
-                    "typeof __duallerCallback__ === 'function' && __duallerCallback__('$callbackId', $resultJson)",
-                    "dualler://callback"
-                )
-            } catch (e: Exception) {
-                // Engine may not be ready
+        val resultJson = when (result) {
+            is APIResult.Success -> {
+                val dataJson = serializeResultData(result.data)
+                """{"success":true,"data":$dataJson}"""
             }
+            is APIResult.Fail -> {
+                """{"success":false,"errCode":${result.errCode},"errMsg":"${escapeJson(result.errMsg)}"}"""
+            }
+        }
+
+        try {
+            engine.evaluateScript(
+                "typeof __duallerCallback__ === 'function' && __duallerCallback__('$callbackId', $resultJson)",
+                "dualler://callback"
+            )
+        } catch (e: Exception) {
+            // Engine may not be ready
         }
     }
 
@@ -188,30 +166,48 @@ class AndroidPlatformBridge(private val context: Context) : PlatformBridge {
         apiHandlers[name] = handler
     }
 
+    // MARK: - Message Sending
+
     /**
-     * Handle messages received from the WebView via WebMessagePort.
+     * Send a message to the WebView.
+     *
+     * Priority: WebMessagePort > JavascriptInterface fallback
+     */
+    private fun sendMessageToWebView(message: String) {
+        val provider = webViewProvider
+        if (provider != null && provider.isMessagePortConnected()) {
+            // Use WebMessagePort (preferred)
+            provider.postMessage(message)
+        } else {
+            // Fallback: evaluateJavascript
+            provider?.evaluateJavascript(
+                "typeof window.__duallerOnMessage__ === 'function' && window.__duallerOnMessage__('${escapeJsString(message)}')"
+            )
+        }
+    }
+
+    // MARK: - Message Handling
+
+    /**
+     * Handle messages received from the WebView.
      */
     private fun handleWebViewMessage(data: String) {
         try {
             val element = json.parseToJsonElement(data)
             val obj = element as? kotlinx.serialization.json.JsonObject ?: return
-            val type = (obj["type"] as? kotlinx.serialization.json.JsonPrimitive)?.content
+            val type = getStringField(obj, "type")
 
             when (type) {
                 "callNative" -> {
-                    val api = (obj["api"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: return
-                    val callbackId = (obj["callbackId"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: ""
-                    val paramsElement = obj["params"] as? kotlinx.serialization.json.JsonObject
-                    val params = paramsElement?.entries?.associate { (k, v) ->
-                        k to (v as? kotlinx.serialization.json.JsonPrimitive)?.content.orEmpty()
-                    } as Map<String, Any>? ?: emptyMap()
-
+                    val api = getStringField(obj, "api") ?: return
+                    val callbackId = getStringField(obj, "callbackId") ?: ""
+                    val params = getObjectField(obj, "params")
                     callNative(api, params, callbackId)
                 }
                 "event" -> {
-                    val pageId = (obj["pageId"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: return
-                    val eventType = (obj["eventType"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: return
-                    val target = (obj["target"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: ""
+                    val pageId = getStringField(obj, "pageId") ?: return
+                    val eventType = getStringField(obj, "eventType") ?: return
+                    val target = getStringField(obj, "target") ?: ""
                     val event = DOMEvent(
                         type = eventType,
                         target = target,
@@ -220,9 +216,79 @@ class AndroidPlatformBridge(private val context: Context) : PlatformBridge {
                     )
                     dispatchEvent(pageId, event)
                 }
+                "ready" -> {
+                    // WebView is ready
+                }
             }
         } catch (e: Exception) {
             // Ignore malformed messages
         }
+    }
+
+    // MARK: - JSON Helpers
+
+    private fun serializeData(data: Map<String, Any>): String {
+        val entries = data.entries.joinToString(",") { (key, value) ->
+            "\"${escapeJson(key)}\":${serializeValue(value)}"
+        }
+        return "{$entries}"
+    }
+
+    private fun serializeValue(value: Any?): String {
+        return when (value) {
+            null -> "null"
+            is String -> "\"${escapeJson(value)}\""
+            is Number, is Boolean -> value.toString()
+            is Map<*, *> -> {
+                @Suppress("UNCHECKED_CAST")
+                serializeData(value as Map<String, Any>)
+            }
+            is Collection<*> -> {
+                val items = value.joinToString(",") { serializeValue(it) }
+                "[$items]"
+            }
+            else -> "\"${escapeJson(value.toString())}\""
+        }
+    }
+
+    private fun serializeResultData(data: Any?): String {
+        return when (data) {
+            null -> "null"
+            is Map<*, *> -> {
+                @Suppress("UNCHECKED_CAST")
+                serializeData(data as Map<String, Any>)
+            }
+            is String -> "\"${escapeJson(data)}\""
+            is Number, is Boolean -> data.toString()
+            else -> "\"${escapeJson(data.toString())}\""
+        }
+    }
+
+    private fun getStringField(obj: kotlinx.serialization.json.JsonObject, key: String): String? {
+        return (obj[key] as? kotlinx.serialization.json.JsonPrimitive)?.content
+    }
+
+    private fun getObjectField(obj: kotlinx.serialization.json.JsonObject, key: String): Map<String, Any> {
+        val element = obj[key] as? kotlinx.serialization.json.JsonObject ?: return emptyMap()
+        return element.entries.associate { (k, v) ->
+            k to (v as? kotlinx.serialization.json.JsonPrimitive)?.content.orEmpty()
+        }
+    }
+
+    private fun escapeJson(str: String): String {
+        return str
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t")
+    }
+
+    private fun escapeJsString(str: String): String {
+        return str
+            .replace("\\", "\\\\")
+            .replace("'", "\\'")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
     }
 }

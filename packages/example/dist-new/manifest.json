@@ -1,0 +1,83 @@
+{
+  "appId": "com.example.dualler-demo",
+  "version": "1.0.0",
+  "compilerVersion": "2.0.0",
+  "pages": [
+    "pages/index/index",
+    "pages/detail/detail",
+    "pages/profile/profile"
+  ],
+  "components": [],
+  "files": {
+    "app.js": {
+      "path": "app.js",
+      "sha256": "517a98adef55f8847f87de8ff6c765c4f6edc273089400be85e9ef45ad29a5ac",
+      "size": 304
+    },
+    "app.css": {
+      "path": "app.css",
+      "sha256": "ef4c9374ca61f76fe2fe46fe1702308083a5d0e4b770dec0e3fee1005f5763f7",
+      "size": 160
+    },
+    "pages/index/index.html": {
+      "path": "pages/index/index.html",
+      "sha256": "1d5bf788d50908a6ca4f5a197d643f5abd2046b1d574c8654dc23bfbcd6a9ad6",
+      "size": 3815
+    },
+    "pages/index/index.js": {
+      "path": "pages/index/index.js",
+      "sha256": "4d20d089722a2826f776f1702e4edea2b96e5f790e66289864f22869486bdc45",
+      "size": 2853
+    },
+    "pages/index/index.css": {
+      "path": "pages/index/index.css",
+      "sha256": "b9b2001f218c305b289bb044737298ec6d6218629f5f3407f7a2db8e166383c2",
+      "size": 2345
+    },
+    "pages/detail/detail.html": {
+      "path": "pages/detail/detail.html",
+      "sha256": "c4e61f1832670b20016cbdc67a2c74489f006d22989fabcafefad3ee6beaa481",
+      "size": 2864
+    },
+    "pages/detail/detail.js": {
+      "path": "pages/detail/detail.js",
+      "sha256": "b12cbaa3119a4c3ff134e1c6a225b7c44793d0f329ac622e3b355194c90b4f47",
+      "size": 2447
+    },
+    "pages/detail/detail.css": {
+      "path": "pages/detail/detail.css",
+      "sha256": "24e94afbde0581725eebc30ac60878830156822f28e86ec0ad4b977cbb1ba275",
+      "size": 2049
+    },
+    "pages/profile/profile.html": {
+      "path": "pages/profile/profile.html",
+      "sha256": "b9571c6dbdfc16d30bd4f4357723ed6518ad82659f1872de18c91ff262e109f2",
+      "size": 3925
+    },
+    "pages/profile/profile.js": {
+      "path": "pages/profile/profile.js",
+      "sha256": "743f435c710f0e2caddf394d477b6feaf8d66d50d22e8414ed5463e0dfb666dd",
+      "size": 4435
+    },
+    "pages/profile/profile.css": {
+      "path": "pages/profile/profile.css",
+      "sha256": "6147f6ea6daa98f41825829529e24e1a6ff2e338f679e9f615c2d283e907befb",
+      "size": 3040
+    }
+  },
+  "totalSize": 28237,
+  "buildTime": "2026-06-16T10:34:25.780Z",
+  "maxStackSize": 5,
+  "pageRoutes": {
+    "pages/index/index": {
+      "path": "pages/index/index.html"
+    },
+    "pages/detail/detail": {
+      "path": "pages/detail/detail.html"
+    },
+    "pages/profile/profile": {
+      "path": "pages/profile/profile.html"
+    }
+  },
+  "componentRegistry": {}
+}

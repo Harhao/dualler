@@ -98,6 +98,12 @@ class AndroidWebViewProvider(private val context: Context) : WebViewProvider {
         }
     }
 
+    override fun setVisible(visible: Boolean) {
+        mainHandler.post {
+            webView.visibility = if (visible) android.view.View.VISIBLE else android.view.View.GONE
+        }
+    }
+
     override fun destroy() {
         mainHandler.post {
             nativePort?.close()

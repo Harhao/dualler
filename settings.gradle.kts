@@ -26,3 +26,9 @@ project(":android").projectDir = File("packages/android")
 
 include(":gradle-plugin")
 project(":gradle-plugin").projectDir = File("packages/gradle-plugin")
+
+include(":test-android-demo")
+project(":test-android-demo").projectDir = File("test/android-demo")
+
+include(":test-android-demo:app")
+project(":test-android-demo:app").projectDir = File("test/android-demo/app")

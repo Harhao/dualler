@@ -7,7 +7,6 @@
     android:padding="32dp"
     android:background="#f5f5f5">
 
-    <!-- Logo -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,39 +23,21 @@
         android:textColor="#666666"
         android:layout_marginTop="8dp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Android Demo"
-        android:textSize="14sp"
-        android:textColor="#999999"
-        android:layout_marginTop="4dp" />
+    <Button
+        android:id="@+id/btn_launch"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="启动小程序"
+        android:textSize="16sp"
+        android:layout_marginTop="48dp" />
 
-    <!-- 按钮区域 -->
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="48dp">
-
-        <!-- 启动小程序 -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_launch"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="🚀 启动小程序"
-            android:textSize="16sp" />
-
-        <!-- 说明文字 -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="点击上方按钮启动 Dualler 示例小程序\n\n小程序包路径：\n/sdcard/dualler/packages/com.example.dualler-demo/"
-            android:textSize="12sp"
-            android:textColor="#999999"
-            android:gravity="center"
-            android:layout_marginTop="16dp" />
-
-    </LinearLayout>
+        android:text="点击按钮启动 Dualler 示例小程序\n请先推送编译产物到设备"
+        android:textSize="12sp"
+        android:textColor="#999999"
+        android:gravity="center"
+        android:layout_marginTop="16dp" />
 
 </LinearLayout>

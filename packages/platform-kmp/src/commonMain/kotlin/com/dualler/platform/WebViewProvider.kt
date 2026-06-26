@@ -26,6 +26,9 @@ interface WebViewProvider {
     /** Configure WebView settings */
     fun configure(config: WebViewConfig)
 
+    /** Set WebView visibility (for page show/hide) */
+    fun setVisible(visible: Boolean)
+
     /** Destroy WebView */
     fun destroy()
 }

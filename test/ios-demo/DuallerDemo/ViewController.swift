@@ -1,10 +1,11 @@
 import UIKit
-import WebKit
+import DuallerIOS
 
 /**
  * iOS 演示首页
  *
  * 点击按钮启动 Dualler 小程序
+ * 使用 SDK 的 DuallerSDK，而不是自己实现
  */
 class ViewController: UIViewController {
 
@@ -88,23 +89,9 @@ class ViewController: UIViewController {
     }
 
     @objc private func launchMiniProgram() {
-        // 获取小程序包路径
-        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let packagePath = documentsPath.appendingPathComponent("dualler/packages/\(appId)")
-
-        guard FileManager.default.fileExists(atPath: packagePath.path) else {
-            showAlert(title: "提示", message: "小程序包不存在，请先编译 example 并复制到 Documents/dualler/packages/ 目录")
-            return
+        // 使用 SDK 的 DuallerSDK 启动小程序
+        DuallerSDK.shared.launchApp(appId: appId, from: self) { [weak self] in
+            print("[Demo] Mini-program dismissed")
         }
-
-        // 启动小程序
-        let duallerVC = DuallerViewController(appId: appId, packagePath: packagePath)
-        present(duallerVC, animated: true)
-    }
-
-    private func showAlert(title: String, message: String) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "确定", style: .default))
-        present(alert, animated: true)
     }
 }

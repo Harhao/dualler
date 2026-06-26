@@ -13,7 +13,7 @@ class AppRuntime(
     private val platform: Platform,
     private val config: AppConfig
 ) {
-    private val router = Router(platform)
+    private val router = Router(platform, config.maxStackSize)
     private var state = AppState.CREATED
 
     private lateinit var jsEngine: JSEngine

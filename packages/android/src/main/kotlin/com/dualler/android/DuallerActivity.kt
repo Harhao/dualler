@@ -150,55 +150,263 @@ class DuallerActivity : AppCompatActivity() {
                         border: 1px solid #ddd;
                         border-radius: 4px;
                         font-size: 14px;
+                        width: 100%;
                     }
+                    [v-cloak] { display: none; }
                     $css
                 </style>
             </head>
             <body>
-                <div id="app">$bodyHtml</div>
+                <div id="app" v-cloak>$bodyHtml</div>
                 <script>
-                    // Dualler 运行时
+                    // === wx platform API ===
                     var wx = {
                         showToast: function(opts) {
                             dualler.postMessage(JSON.stringify({
-                                type: 'api',
-                                api: 'showToast',
-                                params: opts
+                                type: 'api', api: 'showToast', params: opts
                             }));
                         },
                         showModal: function(opts) {
                             dualler.postMessage(JSON.stringify({
-                                type: 'api',
-                                api: 'showModal',
-                                params: opts
+                                type: 'api', api: 'showModal', params: opts
                             }));
                         },
                         navigateTo: function(opts) {
                             dualler.postMessage(JSON.stringify({
-                                type: 'api',
-                                api: 'navigateTo',
-                                params: opts
+                                type: 'api', api: 'navigateTo', params: opts
                             }));
                         },
                         navigateBack: function() {
                             dualler.postMessage(JSON.stringify({
-                                type: 'api',
-                                api: 'navigateBack'
+                                type: 'api', api: 'navigateBack'
                             }));
                         },
                         getSystemInfo: function(opts) {
+                            var info = {
+                                brand: '${android.os.Build.BRAND}',
+                                model: '${android.os.Build.MODEL}',
+                                screenWidth: ${resources.displayMetrics.widthPixels},
+                                screenHeight: ${resources.displayMetrics.heightPixels},
+                                language: '${java.util.Locale.getDefault().language}',
+                                platform: 'android',
+                                SDKVersion: '1.0.0'
+                            };
+                            if (opts.success) opts.success(info);
+                        },
+                        setStorageSync: function(key, value) {
                             dualler.postMessage(JSON.stringify({
-                                type: 'api',
-                                api: 'getSystemInfo',
-                                params: opts
+                                type: 'api', api: 'setStorage', params: {key: key, data: value}
                             }));
+                        },
+                        getStorageSync: function(key) {
+                            return localStorage.getItem(key) || '';
+                        },
+                        clearStorageSync: function() {
+                            localStorage.clear();
+                        },
+                        request: function(opts) {
+                            var xhr = new XMLHttpRequest();
+                            xhr.open(opts.method || 'GET', opts.url);
+                            xhr.onload = function() {
+                                var data;
+                                try { data = JSON.parse(xhr.responseText); } catch(e) { data = xhr.responseText; }
+                                opts.success && opts.success({ data: data, statusCode: xhr.status });
+                            };
+                            xhr.onerror = function() {
+                                opts.fail && opts.fail({ errMsg: 'request:fail' });
+                            };
+                            xhr.send(opts.data ? JSON.stringify(opts.data) : null);
                         }
                     };
 
-                    // 页面脚本
+                    // === Vue lifecycle stubs ===
+                    function onMounted(fn) { fn(); }
+                    function onLaunch(fn) { fn(); }
+                    function onShow(fn) { fn(); }
+                    function onHide(fn) { fn(); }
+
+                    // === Page script (loaded before runtime so wrapper can find functions) ===
                     $js
 
-                    // 通知就绪
+                    // === Dualler mini runtime ===
+                    (function() {
+                        var app = document.getElementById('app');
+
+                        function resolve(path, scope) {
+                            var parts = path.split('.');
+                            var val = scope;
+                            for (var i = 0; i < parts.length; i++) {
+                                if (val == null) return undefined;
+                                val = val[parts[i]];
+                            }
+                            return val;
+                        }
+
+                        function evalExpr(expr, scope) {
+                            try {
+                                with (scope) { return eval(expr); }
+                            } catch(e) { return undefined; }
+                        }
+
+                        function bindEvents(el, scope) {
+                            var attr = el.getAttribute('onclick');
+                            if (attr) {
+                                el.removeAttribute('onclick');
+                                el.addEventListener('click', function(evt) {
+                                    evalExpr(attr, scope);
+                                });
+                            }
+                            var inputAttr = el.getAttribute('oninput');
+                            if (inputAttr) {
+                                el.removeAttribute('oninput');
+                                el.addEventListener('input', function(evt) {
+                                    scope.e = { detail: evt.target.value };
+                                    evalExpr(inputAttr, scope);
+                                    delete scope.e;
+                                    render();
+                                });
+                            }
+                        }
+
+                        function processVFor(el, scope) {
+                            var expr = el.getAttribute('v-for');
+                            if (!expr) return null;
+                            el.removeAttribute('v-for');
+                            var match = expr.match(/\((\w+),\s*(\w+)\)\s+in\s+(\S+)/) ||
+                                        expr.match(/(\w+)\s+in\s+(\S+)/);
+                            if (!match) return null;
+                            var itemName, indexName, arrPath;
+                            if (match.length === 4) {
+                                itemName = match[1]; indexName = match[2]; arrPath = match[3];
+                            } else {
+                                itemName = match[1]; indexName = 'index'; arrPath = match[2];
+                            }
+                            var arr = resolve(arrPath, scope);
+                            if (!Array.isArray(arr)) return null;
+                            var frag = document.createDocumentFragment();
+                            var templateHtml = el.outerHTML;
+                            for (var i = 0; i < arr.length; i++) {
+                                var clone = document.createElement('div');
+                                clone.innerHTML = templateHtml;
+                                var child = clone.firstChild;
+                                var childScope = Object.create(scope);
+                                childScope[itemName] = arr[i];
+                                childScope[indexName] = i;
+                                processElement(child, childScope);
+                                frag.appendChild(child);
+                            }
+                            return frag;
+                        }
+
+                        function processVIf(el, scope) {
+                            var expr = el.getAttribute('v-if');
+                            if (expr === null) return true;
+                            el.removeAttribute('v-if');
+                            return !!evalExpr(expr, scope);
+                        }
+
+                        function processClassBind(el, scope) {
+                            var expr = el.getAttribute(':class');
+                            if (!expr) return;
+                            el.removeAttribute(':class');
+                            var val = evalExpr(expr, scope);
+                            if (typeof val === 'string') {
+                                el.className += ' ' + val;
+                            } else if (typeof val === 'object' && val) {
+                                for (var cls in val) {
+                                    if (val[cls]) el.classList.add(cls);
+                                }
+                            }
+                        }
+
+                        function processValueBind(el, scope) {
+                            var expr = el.getAttribute(':value');
+                            if (!expr) return;
+                            el.removeAttribute(':value');
+                            var val = resolve(expr, scope);
+                            if (val !== undefined) el.value = val;
+                        }
+
+                        function processSrcBind(el, scope) {
+                            var expr = el.getAttribute(':src');
+                            if (!expr) return;
+                            el.removeAttribute(':src');
+                            var val = evalExpr(expr, scope);
+                            if (val !== undefined) el.setAttribute('src', String(val));
+                        }
+
+                        function processDataBinds(el, scope) {
+                            var attrs = el.attributes;
+                            var toRemove = [];
+                            for (var i = 0; i < attrs.length; i++) {
+                                var name = attrs[i].name;
+                                if (name.indexOf('data-bind-') === 0) {
+                                    var exprPath = attrs[i].value;
+                                    var val = resolve(exprPath, scope);
+                                    if (val !== undefined) el.textContent = String(val);
+                                    toRemove.push(name);
+                                }
+                            }
+                            for (var j = 0; j < toRemove.length; j++) {
+                                el.removeAttribute(toRemove[j]);
+                            }
+                        }
+
+                        function processElement(el, scope) {
+                            if (!processVIf(el, scope)) {
+                                el.parentNode && el.parentNode.removeChild(el);
+                                return;
+                            }
+                            var forFrag = processVFor(el, scope);
+                            if (forFrag) {
+                                el.parentNode.replaceChild(forFrag, el);
+                                return;
+                            }
+                            processClassBind(el, scope);
+                            processValueBind(el, scope);
+                            processSrcBind(el, scope);
+                            processDataBinds(el, scope);
+                            bindEvents(el, scope);
+                            var children = Array.prototype.slice.call(el.children);
+                            for (var i = 0; i < children.length; i++) {
+                                processElement(children[i], scope);
+                            }
+                        }
+
+                        function render() {
+                            var html = app.getAttribute('data-template');
+                            if (!html) return;
+                            app.innerHTML = html;
+                            var children = Array.prototype.slice.call(app.children);
+                            for (var i = 0; i < children.length; i++) {
+                                processElement(children[i], window);
+                            }
+                            app.removeAttribute('v-cloak');
+                        }
+
+                        app.setAttribute('data-template', app.innerHTML);
+                        render();
+                        window.__dualler_render = render;
+                    })();
+
+                    // Wrap user functions to auto-render after each call
+                    (function() {
+                        var skipRender = ['onInput'];
+                        for (var k in window) {
+                            if (typeof window[k] === 'function' && skipRender.indexOf(k) === -1 &&
+                                k.indexOf('__') !== 0 && k !== 'render') {
+                                (function(name) {
+                                    var orig = window[name];
+                                    window[name] = function() {
+                                        var result = orig.apply(this, arguments);
+                                        window.__dualler_render && window.__dualler_render();
+                                        return result;
+                                    };
+                                })(k);
+                            }
+                        }
+                    })();
+
                     dualler.postMessage(JSON.stringify({ type: 'ready' }));
                 </script>
             </body>
@@ -207,20 +415,7 @@ class DuallerActivity : AppCompatActivity() {
     }
 
     private fun injectBridge() {
-        val bridgeScript = """
-            window.__dualler_render__ = {
-                patch: function(pageId, data) {
-                    for (var key in data) {
-                        var elements = document.querySelectorAll('[data-bind-' + key + ']');
-                        elements.forEach(function(el) {
-                            el.textContent = data[key];
-                        });
-                    }
-                }
-            };
-        """.trimIndent()
-
-        webView.evaluateJavascript(bridgeScript, null)
+        // Bridge is now embedded in buildHtml runtime
     }
 
     private fun handleWebViewMessage(message: String) {
@@ -263,27 +458,59 @@ class DuallerActivity : AppCompatActivity() {
                     .setNegativeButton("取消") { _, _ -> }
                     .show()
             }
+            "navigateTo" -> {
+                handleNavigateTo(params)
+            }
+            "redirectTo" -> {
+                handleNavigateTo(params)  // In single WebView mode, same as navigateTo
+            }
             "navigateBack" -> {
-                finish()
+                handleNavigateBack(params)
+            }
+            "reLaunch" -> {
+                handleNavigateTo(params)  // In single WebView mode, same as navigateTo
             }
             "getSystemInfo" -> {
-                val info = """
-                    {
-                        "brand": "${android.os.Build.BRAND}",
-                        "model": "${android.os.Build.MODEL}",
-                        "pixelRatio": ${resources.displayMetrics.density},
-                        "screenWidth": ${resources.displayMetrics.widthPixels},
-                        "screenHeight": ${resources.displayMetrics.heightPixels},
-                        "language": "${java.util.Locale.getDefault().language}",
-                        "platform": "android",
-                        "SDKVersion": "1.0.0"
-                    }
-                """.trimIndent()
-                webView.evaluateJavascript(
-                    "if(typeof wx._systemInfoCallback === 'function') wx._systemInfoCallback($info)",
-                    null
-                )
+                // Handled directly in JS shim now
             }
+        }
+    }
+
+    /**
+     * Handle navigateTo by loading a new page in the WebView
+     *
+     * In the simplified DuallerActivity (single WebView), we just load
+     * the new page HTML. For full page stack support, use the KMP AppRuntime.
+     */
+    private fun handleNavigateTo(params: org.json.JSONObject?) {
+        val url = params?.optString("url") ?: return
+
+        // Parse URL: /pages/path/path?key=value
+        val path = url.split("?")[0].removePrefix("/")
+        val htmlFile = "$path.html"
+
+        try {
+            val html = assets.open(htmlFile).bufferedReader().use { it.readText() }
+            webView.loadDataWithBaseURL(
+                "file:///android_asset/",
+                html,
+                "text/html",
+                "UTF-8",
+                null
+            )
+        } catch (e: Exception) {
+            android.util.Log.e("Dualler", "Failed to load page: $htmlFile", e)
+        }
+    }
+
+    /**
+     * Handle navigateBack
+     */
+    private fun handleNavigateBack(params: org.json.JSONObject?) {
+        if (webView.canGoBack()) {
+            webView.goBack()
+        } else {
+            finish()
         }
     }
 

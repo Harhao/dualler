@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="/app.css">
+  <link rel="stylesheet" href="/pages/detail/detail.css">
+</head>
+<body>
+  <div id="app">
+    
+  <div class="container" data-v-d60197ef>
+    <!-- 返回按钮 -->
+    <div class="nav" data-v-d60197ef>
+      <button class="back-btn" @click="goBack" data-v-d60197ef>← 返回</button>
+    </div>
+
+    <!-- 详情内容 -->
+    <div class="card" data-v-d60197ef>
+      <span class="title" data-v-d60197ef>{{ title }}</span>
+      <span class="id" data-v-d60197ef>ID: {{ id }}</span>
+    </div>
+
+    <!-- 图片示例 -->
+    <div class="card" data-v-d60197ef>
+      <span class="card-title" data-v-d60197ef>图片示例</span>
+      <div class="image-grid" data-v-d60197ef>
+        <img
+          v-for="(img, index) in images"
+          :key="index"
+          :src="img"
+          class="image-item"
+          mode="aspectFill" data-v-d60197ef
+        />
+      </div>
+    </div>
+
+    <!-- 表单示例 -->
+    <div class="card" data-v-d60197ef>
+      <span class="card-title" data-v-d60197ef>表单示例</span>
+      <div class="form-item" data-v-d60197ef>
+        <span class="label" data-v-d60197ef>姓名</span>
+        <input class="input" placeholder="请输入姓名" :value="form.name" @input="onNameInput" data-v-d60197ef />
+      </div>
+      <div class="form-item" data-v-d60197ef>
+        <span class="label" data-v-d60197ef>邮箱</span>
+        <input class="input" placeholder="请输入邮箱" :value="form.email" @input="onEmailInput" data-v-d60197ef />
+      </div>
+      <div class="form-item" data-v-d60197ef>
+        <span class="label" data-v-d60197ef>留言</span>
+        <textarea class="textarea" placeholder="请输入留言" :value="form.message" @input="onMessageInput" data-v-d60197ef />
+      </div>
+      <button class="btn btn-primary btn-block" @click="submitForm" data-v-d60197ef>提交</button>
+    </div>
+
+    <!-- 视频占位 -->
+    <div class="card" data-v-d60197ef>
+      <span class="card-title" data-v-d60197ef>视频组件（同层渲染）</span>
+      <div class="video-placeholder" data-v-d60197ef>
+        <span data-v-d60197ef>视频播放区域</span>
+        <span class="video-note" data-v-d60197ef>原生 VideoView 覆盖渲染</span>
+      </div>
+    </div>
+
+    <!-- 地图占位 -->
+    <div class="card" data-v-d60197ef>
+      <span class="card-title" data-v-d60197ef>地图组件（同层渲染）</span>
+      <div class="map-placeholder" data-v-d60197ef>
+        <span data-v-d60197ef>地图显示区域</span>
+        <span class="map-note" data-v-d60197ef>原生 MapView 覆盖渲染</span>
+      </div>
+    </div>
+  </div>
+
+  </div>
+  <script src="/pages/detail/detail.js"></script>
+</body>
+</html>

@@ -147,10 +147,6 @@ function makeRequest() {
 const showWorkerPanel = ref(false)
 const workerResult = ref('')
 
-function showWorkerPanel() {
-  showWorkerPanel.value = !showWorkerPanel.value
-}
-
 function testWorker() {
   showWorkerPanel.value = !showWorkerPanel.value
 }

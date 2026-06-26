@@ -32,6 +32,7 @@ class MockJSEngine : JSEngine {
 
 class MockWebViewProvider : WebViewProvider {
     var loadedHtml: String? = null
+    var isVisible: Boolean = true
     override fun loadUrl(url: String) {}
     override fun loadHtml(html: String, baseUrl: String) { loadedHtml = html }
     override fun evaluateJavascript(script: String, callback: ((String) -> Unit)?) {}
@@ -39,6 +40,7 @@ class MockWebViewProvider : WebViewProvider {
     override fun injectCSS(css: String) {}
     override fun injectScript(script: String) {}
     override fun configure(config: WebViewConfig) {}
+    override fun setVisible(visible: Boolean) { isVisible = visible }
     override fun destroy() {}
 }
 

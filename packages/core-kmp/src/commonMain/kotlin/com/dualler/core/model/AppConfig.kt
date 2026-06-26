@@ -11,7 +11,8 @@ data class AppConfig(
     val appName: String,
     val pages: List<String>,
     val window: WindowConfig = WindowConfig(),
-    val tabBar: TabBarConfig? = null
+    val tabBar: TabBarConfig? = null,
+    val maxStackSize: Int = 5  // Maximum page stack depth
 )
 
 @Serializable
