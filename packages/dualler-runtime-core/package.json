@@ -1,0 +1,12 @@
+{
+  "name": "@dualler/runtime-core",
+  "version": "0.1.0",
+  "description": "Dualler Runtime 核心：Page/Component/Router",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {}
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@dualler/cli",
+  "version": "0.1.0",
+  "description": "Dualler 命令行工具",
+  "bin": {
+    "dualler": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "commander": "^12.0.0",
+    "chokidar": "^3.6.0",
+    "@dualler/compiler": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/chokidar": "^3.4.0"
+  }
+}

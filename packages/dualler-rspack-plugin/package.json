@@ -1,0 +1,13 @@
+{
+  "name": "@dualler/rspack-plugin",
+  "version": "0.1.0",
+  "description": "Dualler Rspack 插件",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@dualler/compiler": "workspace:*"
+  }
+}

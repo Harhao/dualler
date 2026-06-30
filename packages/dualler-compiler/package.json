@@ -1,0 +1,17 @@
+{
+  "name": "@dualler/compiler",
+  "version": "0.1.0",
+  "description": "Dualler 编译器：Vue3 SFC → DSL Bundle",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@vue/compiler-sfc": "^3.4.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}

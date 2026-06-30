@@ -1,0 +1,14 @@
+{
+  "name": "@dualler/runtime-renderer",
+  "version": "0.1.0",
+  "description": "Dualler Runtime 渲染器：VNode/Diff/Patch/Serializer",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@dualler/runtime-core": "workspace:*"
+  }
+}
