@@ -18,27 +18,27 @@
 
 ## 2. Compiler Implementation
 
-- [ ] 2.1 实现 parser/vue-sfc.ts（解析 Vue SFC 文件）
-- [ ] 2.2 实现 parser/styles.ts（CSS 预处理）
-- [ ] 2.3 实现 transformer/ast.ts（DSL AST 类型定义）
-- [ ] 2.4 实现 transformer/template.ts（<template> → DSL AST）
-- [ ] 2.5 实现 transformer/script.ts（<script setup> 处理）
-- [ ] 2.6 实现 transformer/style.ts（<style> → CSS 样式对象）
-- [ ] 2.7 实现 codegen/render.ts（DSL AST → VNode 树）
-- [ ] 2.8 实现 codegen/events.ts（事件绑定代码）
-- [ ] 2.9 实现 codegen/lifecycle.ts（生命周期代码）
-- [ ] 2.10 实现 bundle/bundler.ts（打包为 .bundle.js）
-- [ ] 2.11 实现 bundle/obfuscator.ts（代码混淆）
-- [ ] 2.12 实现 index.ts（对外 API: compile(source, options)）
+- [x] 2.1 实现 parser/vue-sfc.ts（解析 Vue SFC 文件）
+- [x] 2.2 实现 parser/styles.ts（CSS 预处理）
+- [x] 2.3 实现 transformer/ast.ts（DSL AST 类型定义）
+- [x] 2.4 实现 transformer/template.ts（<template> → DSL AST）
+- [x] 2.5 实现 transformer/script.ts（<script setup> 处理）
+- [x] 2.6 实现 transformer/style.ts（<style> → CSS 样式对象）
+- [x] 2.7 实现 codegen/render.ts（DSL AST → VNode 树）
+- [x] 2.8 实现 codegen/events.ts（事件绑定代码）
+- [x] 2.9 实现 codegen/lifecycle.ts（生命周期代码）
+- [x] 2.10 实现 bundle/bundler.ts（打包为 .bundle.js）
+- [x] 2.11 实现 bundle/obfuscator.ts（代码混淆）
+- [x] 2.12 实现 index.ts（对外 API: compile(source, options)）
 
 ## 3. Runtime Core Implementation
 
-- [ ] 3.1 实现 index.ts（创建 dualler 全局对象）
-- [ ] 3.2 实现 page.ts（Page() API，管理页面生命周期）
-- [ ] 3.3 实现 component.ts（Component() 注册，含 properties/observers）
-- [ ] 3.4 实现 observer.ts（响应式数据绑定，trigger setData 更新）
-- [ ] 3.5 实现 router.ts（页面路由，navigateTo/redirectTo/switchTab）
-- [ ] 3.6 实现 errors.ts（错误捕获和上报）
+- [x] 3.1 实现 index.ts（创建 dualler 全局对象）
+- [x] 3.2 实现 page.ts（Page() API，管理页面生命周期）
+- [x] 3.3 实现 component.ts（Component() 注册，含 properties/observers）
+- [x] 3.4 实现 observer.ts（响应式数据绑定，trigger setData 更新）
+- [x] 3.5 实现 router.ts（页面路由，navigateTo/redirectTo/switchTab）
+- [x] 3.6 实现 errors.ts（错误捕获和上报）
 
 ## 4. Runtime Renderer Implementation
 

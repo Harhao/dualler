@@ -11,11 +11,18 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@dualler/compiler": "workspace:*",
+    "ink": "^5.0.0",
+    "ink-select-input": "^6.0.0",
+    "ink-text-input": "^6.0.0",
+    "ink-spinner": "^5.0.0",
+    "react": "^18.3.0",
+    "yoga-layout": "^3.0.0",
     "commander": "^12.0.0",
-    "chokidar": "^3.6.0",
-    "@dualler/compiler": "workspace:*"
+    "chokidar": "^3.6.0"
   },
   "devDependencies": {
-    "@types/chokidar": "^3.4.0"
+    "@types/chokidar": "^2.1.7",
+    "@types/react": "^18.3.0"
   }
 }
