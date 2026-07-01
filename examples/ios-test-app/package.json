@@ -1,0 +1,9 @@
+{
+  "name": "ios-test-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dualler iOS 测试应用",
+  "scripts": {
+    "build": "dualler build && xcodebuild -scheme ios-test-app"
+  }
+}

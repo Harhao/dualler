@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Text, Box, Spacer } from 'ink';
 import SelectInput from 'ink-select-input';
 import TextInput from 'ink-text-input';
-import { Spinner } from 'ink-spinner';
+import Spinner from 'ink-spinner';
 import { TEMPLATES, TemplateOption } from './templates';
 import { generateProject } from './generator';
 
@@ -22,12 +22,17 @@ export function CreateWizard({ projectName }: CreateWizardProps) {
     }
   };
 
-  const handleTemplateSelect = (option: TemplateOption) => {
-    setSelectedTemplate(option.value);
+  const handleTemplateSelect = (item: { value: string }) => {
+    const template = TEMPLATES.find(t => t.value === item.value);
+    if (!template) return;
+    setSelectedTemplate(template.value);
     setStep('generating');
-    generateProject(inputName.trim(), option.value);
+    generateProject(inputName.trim(), template.value);
     setDone(true);
   };
+
+  // Map TemplateOption to ink-select-input Item format (label + value)
+  const selectItems = TEMPLATES.map(t => ({ label: `${t.name} — ${t.description}`, value: t.value }));
 
   return (
     <Box flexDirection="column">
@@ -53,7 +58,7 @@ export function CreateWizard({ projectName }: CreateWizardProps) {
             </Box>
             <Box marginLeft={2}>
               <SelectInput
-                items={TEMPLATES}
+                items={selectItems}
                 onSelect={handleTemplateSelect}
               />
             </Box>
@@ -72,7 +77,7 @@ export function CreateWizard({ projectName }: CreateWizardProps) {
 
         {done && (
           <Box flexDirection="column" marginTop={1}>
-            <Text green bold>✓ 项目 {inputName} 创建成功!</Text>
+            <Text color="green" bold>✓ 项目 {inputName} 创建成功!</Text>
             <Text>  cd {inputName}</Text>
             <Text>  dualler dev</Text>
           </Box>

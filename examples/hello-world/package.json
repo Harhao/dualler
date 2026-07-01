@@ -1,0 +1,11 @@
+{
+  "name": "hello-world",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dualler Hello World 示例",
+  "scripts": {
+    "build": "dualler build",
+    "dev": "dualler dev",
+    "preview": "dualler preview"
+  }
+}

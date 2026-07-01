@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { createRoot } from 'ink';
+import { render } from 'ink';
 import { buildCommand } from './commands/build';
 import { devCommand } from './commands/dev';
 import { previewCommand } from './commands/preview';
@@ -19,7 +19,7 @@ program
   .command('create <name>')
   .description('创建新的 Dualler 小程序项目')
   .action((name: string) => {
-    createRoot(<CreateWizard projectName={name} />).exitOnError();
+    render(<CreateWizard projectName={name} />);
   });
 
 // dualler build

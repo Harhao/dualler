@@ -1,0 +1,9 @@
+{
+  "pages": [
+    { "path": "pages/index" },
+    { "path": "pages/detail" }
+  ],
+  "window": {
+    "navigationBarTitleText": "Todo List"
+  }
+}

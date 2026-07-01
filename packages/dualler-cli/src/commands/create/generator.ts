@@ -1,7 +1,7 @@
-import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync, readdirSync, Stats } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync, readdirSync, statSync, Stats } from 'fs';
 import { join, resolve } from 'path';
 
-const TEMPLATES_DIR = join(__dirname, '../../../templates');
+const TEMPLATES_DIR = join(__dirname, 'templates');
 
 export function generateProject(projectName: string, template: string) {
   const projectDir = resolve(projectName);
@@ -27,7 +27,7 @@ export function generateProject(projectName: string, template: string) {
 }
 
 function copyRecursive(src: string, dest: string) {
-  const stats: Stats = readFileSync(src);
+  const stats: Stats = statSync(src);
   const isDir = stats.isDirectory();
 
   if (isDir) {

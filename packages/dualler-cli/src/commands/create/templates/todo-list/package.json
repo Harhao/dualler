@@ -1,0 +1,12 @@
+{
+  "name": "{{PROJECT_NAME}}",
+  "version": "0.1.0",
+  "description": "A todo-list mini-program",
+  "scripts": {
+    "build": "dualler build",
+    "dev": "dualler dev",
+    "preview": "dualler preview"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

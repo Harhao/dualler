@@ -7,21 +7,20 @@ interface DevServerOptions {
   port?: number;
 }
 
-export function devCommand(this: Parameters<typeof chokidar.watch> extends any ? any : any, options: DevServerOptions = {}) {
+export function devCommand(this: any, options: DevServerOptions = {}) {
   const port = options.port || 3000;
   console.log(`Starting dev server on port ${port}...`);
 
-  // 监听源码变化，实时编译
-  const watcher = chokidar.watch(['src/**/*.vue', 'src/**/*.dualler'], {
+  const watcher = chokidar.watch(['src/**/*.vue'], {
     ignored: /node_modules/,
     persistent: true,
   });
 
-  watcher.on('change', async (filepath: string) => {
+  watcher.on('change', (filepath: string) => {
     console.log(`Compiling ${filepath}...`);
     try {
       const source = readFileSync(filepath, 'utf-8');
-      const result = compile({
+      const result = compile(source, {
         source,
         filename: filepath,
       });

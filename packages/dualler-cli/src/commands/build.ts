@@ -1,36 +1,36 @@
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
+import { resolve } from 'path';
 import { Command } from 'commander';
 import { compile } from '@dualler/compiler';
-import { resolve } from 'path';
-import { mkdirSync, writeFileSync, existsSync } from 'fs';
 
-export function buildCommand(this: Parameters<Command['action']>[0]) {
-  const options = this.opts();
-  const output = resolve(options.output);
+export function buildCommand(this: any) {
+  const options: any = this.opts();
+  const output = resolve(options.output || 'dist');
 
-  if (!existsSync(output)) {
-    mkdirSync(output, { recursive: true });
+  const pagesJsonPath = resolve('src/pages.json');
+  if (!existsSync(pagesJsonPath)) {
+    console.error('pages.json not found');
+    return;
   }
 
-  // 扫描 pages.json 获取页面列表
-  const pagesConfig = JSON.parse(
-    require('fs').readFileSync(resolve('pages.json'), 'utf-8')
-  );
+  const pagesConfig = JSON.parse(readFileSync(pagesJsonPath, 'utf-8'));
 
-  for (const page of pagesConfig.pages) {
-    const srcPath = resolve(page.src);
-    const result = compile({
-      source: require('fs').readFileSync(srcPath, 'utf-8'),
-      filename: page.src,
+  for (const page of pagesConfig.pages || []) {
+    const srcPath = resolve('src', `${page.path}.vue`);
+    if (!existsSync(srcPath)) continue;
+
+    const source = readFileSync(srcPath, 'utf-8');
+    const result = compile(source, {
+      source,
+      filename: page.path,
     });
 
-    const outDir = resolve(output, page.page);
+    const outDir = resolve(output, page.path);
     if (!existsSync(outDir)) {
       mkdirSync(outDir, { recursive: true });
     }
 
-    // 输出 DSL bundle
     writeFileSync(resolve(outDir, 'bundle.dsl.json'), JSON.stringify(result.dsl, null, 2));
-    // 输出样式
     if (result.css) {
       writeFileSync(resolve(outDir, 'style.css'), result.css);
     }

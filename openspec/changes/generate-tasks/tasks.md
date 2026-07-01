@@ -42,121 +42,121 @@
 
 ## 4. Runtime Renderer Implementation
 
-- [ ] 4.1 实现 index.ts（渲染器入口）
-- [ ] 4.2 实现 vnode.ts（VNode 数据结构）
-- [ ] 4.3 实现 diff.ts（差分算法，对比新旧 VNode 树）
-- [ ] 4.4 实现 patch.ts（差分指令生成）
-- [ ] 4.5 实现 serializer.ts（序列化：差分指令 → BridgeMessage）
-- [ ] 4.6 实现 transmitter.ts（传输：通过注入的通信接口发送）
+- [x] 4.1 实现 index.ts（渲染器入口）
+- [x] 4.2 实现 vnode.ts（VNode 数据结构）
+- [x] 4.3 实现 diff.ts（差分算法，对比新旧 VNode 树）
+- [x] 4.4 实现 patch.ts（差分指令生成）
+- [x] 4.5 实现 serializer.ts（序列化：差分指令 → BridgeMessage）
+- [x] 4.6 实现 transmitter.ts（传输：通过注入的通信接口发送）
 
 ## 5. Runtime API Implementation
 
-- [ ] 5.1 实现 index.ts（API 入口）
-- [ ] 5.2 实现 network.ts（dualler.request）
-- [ ] 5.3 实现 storage.ts（dualler.getStorageSync 等）
-- [ ] 5.4 实现 toast.ts（dualler.showToast）
-- [ ] 5.5 实现 navigation.ts（dualler.navigateTo）
-- [ ] 5.6 实现 filesystem.ts（dualler.getFileSystemManager）
-- [ ] 5.7 实现 device.ts（dualler.getSystemInfo）
-- [ ] 5.8 实现 canvas.ts（dualler.createCanvasContext）
-- [ ] 5.9 实现 media.ts（dualler.chooseImage/chooseVideo）
-- [ ] 5.10 实现 share.ts（dualler.onShareAppMessage）
+- [x] 5.1 实现 index.ts（API 入口）
+- [x] 5.2 实现 network.ts（dualler.request）
+- [x] 5.3 实现 storage.ts（dualler.getStorageSync 等）
+- [x] 5.4 实现 toast.ts（dualler.showToast）
+- [x] 5.5 实现 navigation.ts（dualler.navigateTo）
+- [x] 5.6 实现 filesystem.ts（dualler.getFileSystemManager）
+- [x] 5.7 实现 device.ts（dualler.getSystemInfo）
+- [x] 5.8 实现 canvas.ts（dualler.createCanvasContext）
+- [x] 5.9 实现 media.ts（dualler.chooseImage/chooseVideo）
+- [x] 5.10 实现 share.ts（dualler.onShareAppMessage）
 
 ## 6. Native SDK - Shared Protocol
 
-- [ ] 6.1 实现 BridgeMessage.kt（消息格式：type, payload, callbackId, timestamp）
-- [ ] 6.2 实现 DSLModel.kt（DSL 节点类型）
-- [ ] 6.3 实现 VNode.kt（VNode 类型）
-- [ ] 6.4 实现 APIContract.kt（dualler API 参数/返回值类型）
-- [ ] 6.5 实现 SandboxPaths.kt（沙盒路径定义）
+- [x] 6.1 实现 BridgeMessage.kt（消息格式：type, payload, callbackId, timestamp）
+- [x] 6.2 实现 DSLModel.kt（DSL 节点类型）
+- [x] 6.3 实现 VNode.kt（VNode 类型）
+- [x] 6.4 实现 APIContract.kt（dualler API 参数/返回值类型）
+- [x] 6.5 实现 SandboxPaths.kt（沙盒路径定义）
 
 ## 7. Native SDK - Android
 
-- [ ] 7.1 实现 DuallerEngine.kt（引擎入口，一行初始化）
-- [ ] 7.2 实现 DuallerWebView.kt（WebView 封装）
-- [ ] 7.3 实现 QuickJsEngine.kt（QuickJS 封装）
-- [ ] 7.4 实现 BridgeManager.kt（通信中枢）
-- [ ] 7.5 实现 Parser.kt（消息解析）
-- [ ] 7.6 实现 Router.kt（消息路由）
-- [ ] 7.7 实现 NativeBridge.kt（JsEngine 和 Native 桥接）
-- [ ] 7.8 实现 JSAdapter.kt（WebView 适配层）
-- [ ] 7.9 实现 Handler.kt 接口定义
-- [ ] 7.10 实现 RequestHandler.kt（处理 dualler.request）
-- [ ] 7.11 实现 StorageHandler.kt（处理存储相关）
-- [ ] 7.12 实现 ToastHandler.kt（处理 Toast）
-- [ ] 7.13 实现 NavigationHandler.kt（处理导航）
-- [ ] 7.14 实现 FileSystemHandler.kt（处理文件系统）
-- [ ] 7.15 实现 DeviceHandler.kt（处理设备信息）
-- [ ] 7.16 实现 CanvasHandler.kt（处理 Canvas）
-- [ ] 7.17 实现 MediaHandler.kt（处理媒体）
-- [ ] 7.18 实现 ViewManager.kt（原生 UI 管理）
-- [ ] 7.19 实现 WebViewRenderer.kt（WebView 渲染）
+- [x] 7.1 实现 DuallerEngine.kt（引擎入口，一行初始化）
+- [x] 7.2 实现 DuallerWebView.kt（WebView 封装）
+- [x] 7.3 实现 QuickJsEngine.kt（QuickJS 封装）
+- [x] 7.4 实现 BridgeManager.kt（通信中枢）
+- [x] 7.5 实现 Parser.kt（消息解析）
+- [x] 7.6 实现 Router.kt（消息路由）
+- [x] 7.7 实现 NativeBridge.kt（JsEngine 和 Native 桥接）
+- [x] 7.8 实现 JSAdapter.kt（WebView 适配层）
+- [x] 7.9 实现 Handler.kt 接口定义
+- [x] 7.10 实现 RequestHandler.kt（处理 dualler.request）
+- [x] 7.11 实现 StorageHandler.kt（处理存储相关）
+- [x] 7.12 实现 ToastHandler.kt（处理 Toast）
+- [x] 7.13 实现 NavigationHandler.kt（处理导航）
+- [x] 7.14 实现 FileSystemHandler.kt（处理文件系统）
+- [x] 7.15 实现 DeviceHandler.kt（处理设备信息）
+- [x] 7.16 实现 CanvasHandler.kt（处理 Canvas）
+- [x] 7.17 实现 MediaHandler.kt（处理媒体）
+- [x] 7.18 实现 ViewManager.kt（原生 UI 管理）
+- [x] 7.19 实现 WebViewRenderer.kt（WebView 渲染）
 
 ## 8. Native SDK - iOS
 
-- [ ] 8.1 实现 DuallerEngine.swift（引擎入口）
-- [ ] 8.2 实现 DuallerWebView.swift（WebView 封装）
-- [ ] 8.3 实现 JSContextEngine.swift（JavaScriptCore 封装）
-- [ ] 8.4 实现 BridgeManager.swift（通信中枢）
-- [ ] 8.5 实现 Parser.swift（消息解析）
-- [ ] 8.6 实现 Router.swift（消息路由）
-- [ ] 8.7 实现 NativeBridge.swift（JSContext 和 Native 桥接）
-- [ ] 8.8 实现 JSAdapter.swift（WebView 适配层）
-- [ ] 8.9 实现 Handler.swift 接口定义
-- [ ] 8.10 实现 RequestHandler.swift（处理 dualler.request）
-- [ ] 8.11 实现 StorageHandler.swift（处理存储相关）
-- [ ] 8.12 实现 ToastHandler.swift（处理 Toast）
-- [ ] 8.13 实现 NavigationHandler.swift（处理导航）
-- [ ] 8.14 实现 FileSystemHandler.swift（处理文件系统）
-- [ ] 8.15 实现 DeviceHandler.swift（处理设备信息）
-- [ ] 8.16 实现 CanvasHandler.swift（处理 Canvas）
-- [ ] 8.17 实现 MediaHandler.swift（处理媒体）
-- [ ] 8.18 实现 ViewManager.swift（原生 UI 管理）
-- [ ] 8.19 实现 WebViewRenderer.swift（WebView 渲染）
+- [x] 8.1 实现 DuallerEngine.swift（引擎入口）
+- [x] 8.2 实现 DuallerWebView.swift（WebView 封装）
+- [x] 8.3 实现 JSContextEngine.swift（JavaScriptCore 封装）
+- [x] 8.4 实现 BridgeManager.swift（通信中枢）
+- [x] 8.5 实现 Parser.swift（消息解析）
+- [x] 8.6 实现 Router.swift（消息路由）
+- [x] 8.7 实现 NativeBridge.swift（JSContext 和 Native 桥接）
+- [x] 8.8 实现 JSAdapter.swift（WebView 适配层）
+- [x] 8.9 实现 Handler.swift 接口定义
+- [x] 8.10 实现 RequestHandler.swift（处理 dualler.request）
+- [x] 8.11 实现 StorageHandler.swift（处理存储相关）
+- [x] 8.12 实现 ToastHandler.swift（处理 Toast）
+- [x] 8.13 实现 NavigationHandler.swift（处理导航）
+- [x] 8.14 实现 FileSystemHandler.swift（处理文件系统）
+- [x] 8.15 实现 DeviceHandler.swift（处理设备信息）
+- [x] 8.16 实现 CanvasHandler.swift（处理 Canvas）
+- [x] 8.17 实现 MediaHandler.swift（处理媒体）
+- [x] 8.18 实现 ViewManager.swift（原生 UI 管理）
+- [x] 8.19 实现 WebViewRenderer.swift（WebView 渲染）
 
 ## 9. CLI Implementation
 
-- [ ] 9.1 实现 index.ts（CLI 入口）
-- [ ] 9.2 实现 commands/build.ts（dualler build）
-- [ ] 9.3 实现 commands/preview.ts（dualler preview）
-- [ ] 9.4 实现 commands/create.ts（dualler create）
-- [ ] 9.5 实现 commands/create/prompts.ts（交互式问答）
-- [ ] 9.6 实现 commands/create/generator.ts（项目文件生成）
-- [ ] 9.7 实现 commands/create/templates/basic/（基础模板）
-- [ ] 9.8 实现 commands/create/templates/todo-list/（完整示例模板）
-- [ ] 9.9 实现 commands/create/templates/with-store/（状态管理模板）
-- [ ] 9.10 实现 utils/logger.ts（日志工具）
+- [x] 9.1 实现 index.ts（CLI 入口）
+- [x] 9.2 实现 commands/build.ts（dualler build）
+- [x] 9.3 实现 commands/preview.ts（dualler preview）
+- [x] 9.4 实现 commands/create.ts（dualler create）
+- [x] 9.5 实现 commands/create/prompts.ts（交互式问答）
+- [x] 9.6 实现 commands/create/generator.ts（项目文件生成）
+- [x] 9.7 实现 commands/create/templates/basic/（基础模板）
+- [x] 9.8 实现 commands/create/templates/todo-list/（完整示例模板）
+- [x] 9.9 实现 commands/create/templates/with-store/（状态管理模板）
+- [x] 9.10 实现 utils/logger.ts（日志工具）
 
 ## 10. Dev Server Implementation
 
-- [ ] 10.1 实现 index.ts（开发服务器入口）
-- [ ] 10.2 实现 server.ts（HTTP + WebSocket 服务器）
-- [ ] 10.3 实现 watch.ts（文件监听）
-- [ ] 10.4 实现 hmr.ts（热更新逻辑）
+- [x] 10.1 实现 index.ts（开发服务器入口）
+- [x] 10.2 实现 server.ts（HTTP + WebSocket 服务器）
+- [x] 10.3 实现 watch.ts（文件监听）
+- [x] 10.4 实现 hmr.ts（热更新逻辑）
 
 ## 11. Build Plugins Implementation
 
-- [ ] 11.1 实现 dualler-vite-plugin/src/index.ts（Vite 插件入口）
-- [ ] 11.2 实现 dualler-vite-plugin/src/transform.ts（Vite transform hook）
-- [ ] 11.3 实现 dualler-rspack-plugin/src/index.ts（Rspack 插件入口）
-- [ ] 11.4 实现 dualler-rspack-plugin/src/compiler.ts（Rspack compiler hook）
+- [x] 11.1 实现 dualler-vite-plugin/src/index.ts（Vite 插件入口）
+- [x] 11.2 实现 dualler-vite-plugin/src/transform.ts（Vite transform hook）
+- [x] 11.3 实现 dualler-rspack-plugin/src/index.ts（Rspack 插件入口）
+- [x] 11.4 实现 dualler-rspack-plugin/src/compiler.ts（Rspack compiler hook）
 
 ## 12. Examples and Test Apps
 
-- [ ] 12.1 实现 examples/hello-world/dualler.config.ts（项目配置）
-- [ ] 12.2 实现 examples/hello-world/src/App.vue（根组件）
-- [ ] 12.3 实现 examples/hello-world/src/pages/index.vue（首页）
-- [ ] 12.4 实现 examples/todo-list/dualler.config.ts（项目配置）
-- [ ] 12.5 实现 examples/todo-list/src/App.vue（根组件）
-- [ ] 12.6 实现 examples/todo-list/src/pages/index.vue（列表页）
-- [ ] 12.7 实现 examples/todo-list/src/pages/detail.vue（详情页）
-- [ ] 12.8 实现 examples/android-test-app/（Android 测试 App，集成 SDK）
-- [ ] 12.9 实现 examples/ios-test-app/（iOS 测试 App，集成 SDK）
+- [x] 12.1 实现 examples/hello-world/dualler.config.ts（项目配置）
+- [x] 12.2 实现 examples/hello-world/src/App.vue（根组件）
+- [x] 12.3 实现 examples/hello-world/src/pages/index.vue（首页）
+- [x] 12.4 实现 examples/todo-list/dualler.config.ts（项目配置）
+- [x] 12.5 实现 examples/todo-list/src/App.vue（根组件）
+- [x] 12.6 实现 examples/todo-list/src/pages/index.vue（列表页）
+- [x] 12.7 实现 examples/todo-list/src/pages/detail.vue（详情页）
+- [x] 12.8 实现 examples/android-test-app/（Android 测试 App，集成 SDK）
+- [x] 12.9 实现 examples/ios-test-app/（iOS 测试 App，集成 SDK）
 
 ## 13. Documentation
 
-- [ ] 13.1 编写 docs/architecture.md（整体架构设计）
-- [ ] 13.2 编写 docs/compiler.md（编译器设计细节）
-- [ ] 13.3 编写 docs/runtime.md（Runtime 设计细节）
-- [ ] 13.4 编写 docs/sdk-api.md（Native SDK API 文档）
-- [ ] 13.5 编写 docs/getting-started.md（快速开始指南）
+- [x] 13.1 编写 docs/architecture.md（整体架构设计）
+- [x] 13.2 编写 docs/compiler.md（编译器设计细节）
+- [x] 13.3 编写 docs/runtime.md（Runtime 设计细节）
+- [x] 13.4 编写 docs/sdk-api.md（Native SDK API 文档）
+- [x] 13.5 编写 docs/getting-started.md（快速开始指南）
