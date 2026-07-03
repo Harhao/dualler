@@ -6,9 +6,15 @@ This is a minimal iOS application that integrates the Dualler SDK for testing pu
 
 ```
 ios-test-app/
-├── Info.plist
-├── AppDelegate.swift
-└── ViewController.swift
+├── Info.plist                    # App configuration (bundle ID, permissions)
+├── DuallerTestApp/
+│   ├── DuallerTestApp.swift      # @main AppDelegate entry point
+│   └── ViewController.swift      # Displays DuallerWebView
+└── dist/
+    └── pages/
+        └── index/
+            ├── bundle.js         # Logic layer JS
+            └── style.css         # Stylesheet
 ```
 
 ## Purpose

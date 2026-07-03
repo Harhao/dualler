@@ -10,6 +10,8 @@ const WHITESPACE_RE = /\s+/g;
 interface Token {
   type: 'tag-open' | 'tag-close' | 'text' | 'eof';
   value: string;
+  /** True for self-closing tags like <image/> or <input/>. False for normal close </tag>. */
+  isSelfClose?: boolean;
 }
 
 function tokenize(input: string): Token[] {
@@ -26,17 +28,25 @@ function tokenize(input: string): Token[] {
       }
 
       let tagText = input.slice(pos + 1, closeIdx);
+
+      // Detect closing tags: </tagname>
+      if (tagText.startsWith('/')) {
+        tokens.push({ type: 'tag-close', value: '/' + tagText.slice(1).trim() });
+        pos = closeIdx + 1;
+        continue;
+      }
+
       const isSelfClose = tagText.endsWith('/');
       if (isSelfClose) {
         tagText = tagText.slice(0, -1);
       }
 
       tokens.push({ type: 'tag-open', value: tagText.trim() });
-      tokens.push({ type: 'tag-close', value: '' });
+      tokens.push({ type: 'tag-close', value: '', isSelfClose: false });
 
       // If self-closing tag, emit an immediate closing pair.
       if (SELF_CLOSING.has(tagText.split(/\s/)[0].toLowerCase()) || isSelfClose) {
-        tokens.push({ type: 'tag-close', value: '/' + tagText });
+        tokens.push({ type: 'tag-close', value: '/' + tagText, isSelfClose: true });
       }
 
       pos = closeIdx + 1;
@@ -60,6 +70,11 @@ function tokenize(input: string): Token[] {
 }
 
 function parseAttrs(tagContent: string): { tagName: string; props: DSLNode['props']; events?: Record<string, string> } {
+  // Closing tags like "/view" have no props or events
+  if (tagContent.startsWith('/')) {
+    return { tagName: tagContent.slice(1), props: [] };
+  }
+
   const parts = tagContent.split(WHITESPACE_RE).filter(Boolean);
   if (!parts.length) return { tagName: '', props: [] };
 
@@ -125,8 +140,19 @@ export function transformTemplate(templateContent: string): DSLNode {
     // Collect children until matching close tag
     while (peek().type !== 'eof') {
       if (peek().type === 'tag-close') {
-        advance(); // consume tag-close
-        break;
+        // Closing tag like </view>: break out
+        if (peek().value.startsWith('/')) {
+          advance();
+          break;
+        }
+        // Self-closing tag like <image/>
+        if (peek().isSelfClose) {
+          advance();
+          break;
+        }
+        // Empty tag-close from <view> (normal open tag) — skip it, children follow
+        advance();
+        continue;
       }
 
       const tok = advance();

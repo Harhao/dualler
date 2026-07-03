@@ -1,13 +1,13 @@
-import { compile } from '@dualler/compiler';
+import { compileToBundle } from '@dualler/compiler';
 
 export function transformVue(source: string, id: string) {
   try {
-    const result = compile(source, {
+    const bundleJs = compileToBundle(source, {
       source,
       filename: id,
     });
     return {
-      code: JSON.stringify(result),
+      code: bundleJs,
       map: null,
     };
   } catch (err) {

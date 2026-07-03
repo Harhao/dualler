@@ -1,15 +1,32 @@
 // ---------------------------------------------------------------------------
-// src/router.ts — Page routing & navigation
+// src/router.ts — Page routing & navigation with WebView lifecycle
 // ---------------------------------------------------------------------------
 
 import { RouterAction, NavigateOptions, RouteRecord } from './types';
-import { pushPage, popPage, getPageStack } from './page';
+import { pushPage, popPage, getPageStack, registeredPages } from './page';
+import { DefaultPageLoader, PageLoader } from './loader';
+import { getApp } from './app';
 
 /* ---------------------------------------------------------------------------
  * Queue of pending navigation actions.
  * --------------------------------------------------------------------------- */
 
 export const routeQueue: RouteRecord[] = [];
+
+/* ---------------------------------------------------------------------------
+ * Default loader instance — can be swapped via setLoader().
+ * SDKs replace this with their native bridge loader.
+ * --------------------------------------------------------------------------- */
+
+let _loader: PageLoader = new DefaultPageLoader();
+
+export function getLoader(): PageLoader {
+  return _loader;
+}
+
+export function setLoader(loader: PageLoader): void {
+  _loader = loader;
+}
 
 /* ---------------------------------------------------------------------------
  * Public navigation functions
@@ -67,33 +84,74 @@ export function flushRouteQueue(): void {
 
 /** Execute a single navigation action against the internal page stack. */
 function executeRoute(action: RouterAction, options: NavigateOptions & { delta?: number }): void {
+  const app = getApp();
+
   switch (action) {
     case 'navigateTo':
+      // Load page resources before pushing to stack.
+      _loader.loadPage(options.url).catch(() => {});
       pushPage(options.url);
+      app._stackLength = getPageStack().length;
+      try { (app as any).onShow?.(); } catch (_) { /* swallow */ }
       break;
 
-    case 'redirectTo':
-      popPage();           // remove current
-      pushPage(options.url); // push new
-      break;
-
-    case 'switchTab': {
-      // Walk down the stack removing everything above the tab root.
-      const idx = getPageStack().lastIndexOf(options.url);
-      while (getPageStack().length > idx + 1) popPage();
-      if (idx === -1) pushPage(options.url);
+    case 'redirectTo': {
+      const current = popPage();
+      if (current) {
+        _loader.unloadPage(current);
+      }
+      _loader.loadPage(options.url).catch(() => {});
+      pushPage(options.url);
+      app._stackLength = getPageStack().length;
+      try { (app as any).onShow?.(); } catch (_) { /* swallow */ }
       break;
     }
 
-    case 'reLaunch':
-      while (getPageStack().length > 0) popPage();
-      pushPage(options.url);
+    case 'switchTab': {
+      // Walk down the stack removing everything above the tab root.
+      const stack = getPageStack();
+      const idx = stack.lastIndexOf(options.url);
+      // Unload pages above the tab.
+      while (stack.length > idx + 1) {
+        const popped = popPage();
+        if (popped) _loader.unloadPage(popped);
+      }
+      if (idx === -1) {
+        // Tab not on stack — load and push.
+        _loader.loadPage(options.url).catch(() => {});
+        pushPage(options.url);
+      }
+      app._stackLength = getPageStack().length;
+      try { (app as any).onShow?.(); } catch (_) { /* swallow */ }
       break;
+    }
+
+    case 'reLaunch': {
+      // Unload all current pages.
+      while (getPageStack().length > 0) {
+        const popped = popPage();
+        if (popped) _loader.unloadPage(popped);
+      }
+      _loader.loadPage(options.url).catch(() => {});
+      pushPage(options.url);
+      app._stackLength = getPageStack().length;
+      try { (app as any).onHide?.(); } catch (_) { /* swallow */ }
+      try { (app as any).onShow?.(); } catch (_) { /* swallow */ }
+      break;
+    }
 
     case 'navigateBack': {
       const delta = options.delta ?? 1;
       for (let i = 0; i < delta; i++) {
-        if (!popPage()) break;
+        const popped = popPage();
+        if (!popped) break;
+        _loader.unloadPage(popped);
+      }
+      app._stackLength = getPageStack().length;
+      if (getPageStack().length === 0) {
+        try { (app as any).onHide?.(); } catch (_) { /* swallow */ }
+      } else {
+        try { (app as any).onShow?.(); } catch (_) { /* swallow */ }
       }
       break;
     }

@@ -1,5 +1,9 @@
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync, readdirSync, statSync, Stats } from 'fs';
-import { join, resolve } from 'path';
+import { join, resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const TEMPLATES_DIR = join(__dirname, 'templates');
 

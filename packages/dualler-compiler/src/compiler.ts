@@ -30,7 +30,11 @@ export function compile(source: string, options: CompileOptions): CompileResult 
 }
 
 /**
- * Compile and immediately bundle into a self-contained output string.
+ * Compile a Vue SFC and bundle into executable JS (logic layer).
+ *
+ * Output format mirrors WeChat mini-program:
+ * - bundle.js: logic layer (Page() registration + render function)
+ * - style.css: extracted from <style> blocks
  */
 export function compileToBundle(source: string, options: CompileOptions): string {
   const result = compile(source, options);

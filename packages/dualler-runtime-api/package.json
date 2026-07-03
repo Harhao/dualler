@@ -5,10 +5,11 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "rslib build",
     "clean": "rm -rf dist"
   },
   "devDependencies": {
+    "@rslib/core": "^0.5.0",
     "typescript": "^5.3.0"
   },
   "dependencies": {

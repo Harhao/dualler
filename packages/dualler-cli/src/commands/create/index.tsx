@@ -3,7 +3,7 @@ import { Text, Box, Spacer } from 'ink';
 import SelectInput from 'ink-select-input';
 import TextInput from 'ink-text-input';
 import Spinner from 'ink-spinner';
-import { TEMPLATES, TemplateOption } from './templates';
+import { TEMPLATES, type TemplateOption } from './templates';
 import { generateProject } from './generator';
 
 interface CreateWizardProps {

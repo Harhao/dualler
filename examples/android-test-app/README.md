@@ -6,12 +6,23 @@ This is a minimal Android application that integrates the Dualler Android SDK fo
 
 ```
 android-test-app/
-├── AndroidManifest.xml
-├── build.gradle.kts
+├── build.gradle.kts              # App-level Gradle config with SDK dependency
+├── settings.gradle.kts           # Includes sdk project in build
+├── gradle.properties             # Build configuration
+├── AndroidManifest.xml           # App manifest with MainActivity
 └── src/
     └── main/
-        └── java/com/example/duallertest/
-            └── MainActivity.kt
+        ├── AndroidManifest.xml
+        ├── assets/
+        │   ├── pages.json                # Mini-program page routes
+        │   └── dist/pages/index/         # Compiled bundle output
+        │       ├── bundle.js             # Logic layer JS
+        │       ├── style.css             # Stylesheet
+        │       └── pages.json            # Page-level config
+        ├── java/com/example/duallertest/
+        │   └── MainActivity.kt
+        └── res/values/
+            └── strings.xml
 ```
 
 ## Purpose

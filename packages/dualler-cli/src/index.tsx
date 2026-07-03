@@ -43,4 +43,4 @@ program
   .option('-d, --dir <path>', '预览目录', 'dist')
   .action(previewCommand);
 
-program.parse();
+program.parse(process.argv);

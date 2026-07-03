@@ -1,9 +1,0 @@
-{
-  "name": "android-test-app",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Dualler Android 测试应用",
-  "scripts": {
-    "build": "dualler build && ./gradlew assembleDebug"
-  }
-}

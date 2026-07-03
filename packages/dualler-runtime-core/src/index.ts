@@ -2,6 +2,9 @@
 // src/index.ts — Public API surface
 // ---------------------------------------------------------------------------
 
+export { App, getApp } from './app';
+export type { AppOptions } from './app';
+
 export { Page } from './page';
 export { Component } from './component';
 export { createReactiveData } from './observer';
@@ -12,6 +15,8 @@ export {
   navigateBack,
   reLaunch,
   getRouteQueue,
+  getLoader,
+  setLoader,
 } from './router';
 export {
   registerErrorHandler,
@@ -37,3 +42,4 @@ export type {
   ErrorHandler,
   RouteRecord,
 } from './types';
+export type { PageLoader } from './loader';

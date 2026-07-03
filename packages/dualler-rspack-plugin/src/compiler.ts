@@ -1,5 +1,5 @@
 import { Compilation, type Compiler } from '@rspack/core';
-import { compile } from '@dualler/compiler';
+import { compileToBundle } from '@dualler/compiler';
 import fs from 'fs';
 import path from 'path';
 
@@ -25,7 +25,7 @@ export function duallerRspackCompiler(
           for (const vueFile of vueFiles) {
             const source = fs.readFileSync(vueFile, 'utf-8');
             try {
-              const result = compile(source, {
+              const bundleJs = compileToBundle(source, {
                 source,
                 filename: vueFile,
               });
@@ -38,9 +38,7 @@ export function duallerRspackCompiler(
                     source() { return this._value; }
                     buffer() { return Buffer.from(this._value); }
                   };
-              compilation.emitAsset(assetName, new RawSource(
-                JSON.stringify(result)
-              ));
+              compilation.emitAsset(assetName, new RawSource(bundleJs));
             } catch (err) {
               compilation.errors.push(
                 new Error(`[dualler] Failed to compile ${vueFile}: ${err}`)

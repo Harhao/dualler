@@ -22,10 +22,9 @@ import DuallerSDK
 let bundleURL = Bundle.main.url(forResource: "index", withExtension: "js")!
 let config = EngineConfig(
     debugMode: true,
-    bundleURL: bundleURL
-) { error in
-    print("Dualler error: \(error)")
-}
+    bundleURL: bundleURL,
+    maxCacheSize: 5
+)
 
 let engine = try DuallerEngine.init(UIApplication.shared, config: config)
 ```
@@ -37,6 +36,18 @@ let engine = try DuallerEngine.init(UIApplication.shared, config: config)
 | debugMode     | Bool       | false   | Enable debug logging     |
 | bundleURL     | URL        | -       | Path to compiled bundle  |
 | errorHandler  | Closure?   | nil     | Callback on fatal errors |
+| maxCacheSize  | Int        | 5       | Max idle WebViews in pool|
+
+### WebView Pool
+
+Each engine instance includes a `PageWebViewPool` for per-page navigation:
+
+```swift
+let pool = engine.pool
+let webView = try pool.acquire("pages/detail/detail")
+// ... later ...
+pool.release(webView, forRoute: "pages/detail/detail")
+```
 
 ### Handler Registration
 
@@ -89,13 +100,32 @@ dependencies {
 ### Initialization
 
 ```kotlin
-val bundleUrl = assets.open("index.js")
+val bundleUrl = "file:///android_asset/dist/pages/index/index.js"
 val config = EngineConfig(
     debugMode = true,
-    bundleURL = bundleUrl
+    bundleUrl = bundleUrl,
+    maxCacheSize = 5
 )
 
 val engine = DuallerEngine.init(applicationContext, config)
+```
+
+### EngineConfig
+
+| Parameter     | Type              | Default | Description              |
+|---------------|-------------------|---------|--------------------------|
+| debugMode     | Boolean           | false   | Enable debug logging     |
+| bundleUrl     | String            | -       | Path to compiled bundle  |
+| errorHandler  | ((Throwable)→Unit)? | nil   | Callback on fatal errors |
+| maxCacheSize  | Int               | 5       | Max idle WebViews in pool|
+
+### WebView Pool
+
+```kotlin
+val pool = engine.pool
+val webView = pool.acquire("pages/detail/detail")
+// ... later ...
+pool.release("pages/detail/detail", webView)
 ```
 
 ### API Parity

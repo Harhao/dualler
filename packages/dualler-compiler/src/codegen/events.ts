@@ -4,7 +4,7 @@ import type { DSLNode } from '../types';
  * Walk the DSL tree and collect event bindings from all nodes.
  * Returns a string of JS assignments mapping event names to handler bodies.
  */
-export function generateEventHandlers(node: DSLNode): string {
+export function generateEventBindings(node: DSLNode): string {
   const bindings: string[] = [];
 
   function walk(n: DSLNode) {
@@ -21,3 +21,8 @@ export function generateEventHandlers(node: DSLNode): string {
   walk(node);
   return bindings.join('\n');
 }
+
+/**
+ * @deprecated Use generateEventBindings instead.
+ */
+export const generateEventHandlers = generateEventBindings;
