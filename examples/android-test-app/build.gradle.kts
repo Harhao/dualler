@@ -32,6 +32,32 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    sourceSets {
+        getByName("main") {
+            assets.srcDirs(files("$projectDir/src/main/assets"))
+        }
+    }
+}
+
+// Task to copy built dist into assets
+tasks.register("copyDistToAssets") {
+    group = "dualler"
+    description = "Copy hello-world dist into android-test-app assets"
+    doLast {
+        val helloWorldDist = file("${rootDir.parentFile.parentFile}/hello-world/dist")
+        val assetsDir = file("src/main/assets/dist")
+        if (helloWorldDist.exists()) {
+            assetsDir.mkdirs()
+            copy {
+                from(helloWorldDist)
+                into(assetsDir)
+            }
+            println("Copied ${helloWorldDist.path} -> ${assetsDir.path}")
+        } else {
+            throw GradleException("hello-world dist not found at ${helloWorldDist.path}. Run 'dualler build' in examples/hello-world first.")
+        }
+    }
 }
 
 dependencies {

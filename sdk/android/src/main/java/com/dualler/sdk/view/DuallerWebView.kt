@@ -5,6 +5,7 @@ import android.content.Context
 import com.dualler.sdk.EngineConfig
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.webkit.JavascriptInterface
 
 @SuppressLint("ViewConstructor")
 class DuallerWebView(context: Context, config: EngineConfig, private val pageRoute: String? = null) : WebView(context) {
@@ -16,12 +17,17 @@ class DuallerWebView(context: Context, config: EngineConfig, private val pageRou
             allowFileAccess = true
             mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
         }
+
+        // Inject AndroidBridge as a JS interface so JS can call native methods
+        addJavascriptInterface(AndroidBridgeImpl(), "AndroidBridge")
+
         webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: android.webkit.WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 injectBridge()
             }
         }
+
         // If a route is specified, load the page-specific bundle URL.
         val targetUrl = pageRoute?.let { route ->
             resolvePageUrl(route, config.bundleUrl)
@@ -35,7 +41,6 @@ class DuallerWebView(context: Context, config: EngineConfig, private val pageRou
      */
     private fun resolvePageUrl(route: String, baseUrl: String): String {
         val pageName = route.split('/').lastOrNull() ?: route
-        // Derive the dist path from the existing bundleUrl structure.
         val distPath = if (baseUrl.contains("/dist/")) {
             baseUrl.substringBefore("/dist/") + "/dist/"
         } else {
@@ -60,7 +65,7 @@ class DuallerWebView(context: Context, config: EngineConfig, private val pageRou
     }
 
     private fun injectBridge() {
-        // Inject JavaScript bridge for Runtime <-> Native communication
+        // Inject JS-side bridge that delegates to AndroidBridge interface
         evaluateJavascript("""
             (function() {
                 window.__DUALLER_BRIDGE__ = {
@@ -77,6 +82,20 @@ class DuallerWebView(context: Context, config: EngineConfig, private val pageRou
             evaluateJavascript(script, null)
         } else {
             evaluateJavascript(script) { callback(it) }
+        }
+    }
+
+    /**
+     * JavaScript interface — called from JS via window.__DUALLER_BRIDGE__.postMessage()
+     */
+    @Suppress("unused")
+    inner class AndroidBridgeImpl {
+        @JavascriptInterface
+        fun handleMessage(message: String): String? {
+            // Forward to BridgeManager for routing to handlers
+            // This is a simplified bridge — in production, use the BridgeManager
+            android.util.Log.d("DuallerBridge", "Received: $message")
+            return "{}"
         }
     }
 }

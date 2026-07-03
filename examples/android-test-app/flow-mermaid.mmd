@@ -1,0 +1,93 @@
+sequenceDiagram
+    autonumber
+    participant MA as MainActivity
+    participant DE as DuallerEngine
+    participant WV as DuallerWebView
+    participant AS as assets/dist/
+    participant JS as JS Runtime
+    participant BI as AndroidBridgeImpl
+    participant JM as JSAdapter
+    participant PP as PageWebViewPool
+
+    rect rgb(230, 240, 255)
+    Note over MA,PP: ① 初始化阶段
+    MA->>DE: init(context, config)<br/>bundleUrl = "file:///android_asset/.../index.js"
+    DE->>WV: new DuallerWebView(context, config)
+    activate WV
+    WV->>WV: settings.javaScriptEnabled = true<br/>domStorageEnabled = true<br/>allowFileAccess = true
+    WV->>WV: addJavascriptInterface(AndroidBridgeImpl, "AndroidBridge")
+    WV->>AS: loadUrl("file:///android_asset/dist/pages/index/index.js")
+    activate AS
+    AS-->>WV: page loads
+    deactivate AS
+    WV->>WV: onPageFinished → injectBridge()
+    Note over WV: window.__DUALLER_BRIDGE__ = {<br/>  postMessage: (msg) →<br/>    AndroidBridge.handleMessage(msg)<br/>}
+    DE->>WV: evaluateJS(script)
+    JM->>WV: injectGlobalObjects()
+    Note over WV: window.__DUALLER__ = {<br/>  version: '0.1.0',<br/>  platform: 'android',<br/>  engine: 'quickjs'<br/>}
+    WV->>JS: evaluate index.js bundle
+    activate JS
+    JS->>JS: (function(){...})()  // CSS injection
+    JS->>JS: function render() { ... }  // VNode render
+    JS->>JS: Page({ data, render, onLoad, ... })
+    deactivate JS
+    end
+
+    rect rgb(255, 245, 230)
+    Note over MA,PP: ② Runtime ↔ Native 桥接
+    JS->>BI: AndroidBridge.handleMessage(json)
+    activate BI
+    BI->>BI: Log.d("DuallerBridge", msg)
+    BI-->>JS: return "{}"
+    deactivate BI
+    end
+
+    rect rgb(230, 255, 230)
+    Note over MA,PP: ③ 页面导航 (navigateTo)
+    JS->>BI: handleMessage(navigateTo: pages/detail/detail)
+    BI->>PP: acquire("pages/detail/detail")
+    activate PP
+    PP->>WV2: new DuallerWebView(context, config, "pages/detail/detail")
+    activate WV2
+    WV2->>AS2: loadUrl(".../detail/detail.js")
+    activate AS2
+    AS2-->>WV2: page loads
+    deactivate AS2
+    WV2->>WV2: onPageFinished → injectBridge()
+    WV2->>WV2: addJavascriptInterface(AndroidBridgeImpl)
+    WV2-->>PP: return webView
+    PP-->>BI: webView
+    BI-->>JS: response
+    deactivate WV2
+    deactivate PP
+    end
+
+    rect rgb(255, 235, 235)
+    Note over MA,PP: ④ 页面返回 (navigateBack)
+    JS->>BI: handleMessage(navigateBack)
+    BI->>PP: release("pages/detail/detail", webView)
+    activate PP
+    PP->>WV2: visibility = INVISIBLE<br/>pauseTimers()
+    PP->>PP: idleMap["pages/detail/detail"] = webView
+    PP-->>BI: done
+    BI-->>JS: response
+    deactivate PP
+    end
+
+    rect rgb(255, 250, 205)
+    Note over MA,PP: ⑤ LRU 淘汰
+    PP->>PP: acquire() 且 idleMap.size ≥ maxCacheSize(5)
+    PP->>PP: destroyOldest()
+    PP->>PP: 取出 _accessOrder.first() (最久未使用)
+    PP->>WV: webView.destroy()
+    PP->>PP: idleMap.remove(route)<br/>allWebViews.remove(route)<br/>_accessOrder.remove(route)
+    end
+
+    rect rgb(240, 240, 255)
+    Note over MA,PP: ⑥ 销毁
+    MA->>DE: onDestroy()
+    MA->>DE: DuallerEngine.destroy()
+    DE->>PP: pool.clear()
+    PP->>PP: for item in idleMap: item.webView.destroy()
+    DE->>DE: instance = null<br/>pool = null<br/>bridgeManager = null
+    end

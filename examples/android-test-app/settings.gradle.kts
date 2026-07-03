@@ -16,4 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "DuallerTestApp"
 include(":sdk")
-project(":sdk").projectDir = file("${rootDir.parentFile.parentFile}/sdk/android")
+project(":sdk").projectDir = file("../../sdk/android")
